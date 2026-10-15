@@ -1,0 +1,18 @@
+[
+  {
+    "place_id": 289410291,
+    "licence": "Data \u00a9 OpenStreetMap contributors, ODbL 1.0. http://osm.org/copyright",
+    "osm_type": "node",
+    "osm_id": 1,
+    "lat": "44.05800",
+    "lon": "-121.30260",
+    "class": "highway",
+    "type": "crossing",
+    "place_rank": 30,
+    "importance": 0.3,
+    "addresstype": "highway",
+    "name": "NE Franklin Ave & NE 3rd St Crossing",
+    "display_name": "NE Franklin Ave & NE 3rd St Crossing, Bend, Deschutes County, Oregon, 97701, United States",
+    "boundingbox": ["44.05790", "44.05810", "-121.30270", "-121.30250"]
+  }
+]

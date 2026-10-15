@@ -1,0 +1,191 @@
+{
+  "version": 0.6,
+  "generator": "Overpass API",
+  "elements": [
+    {
+      "type": "node",
+      "id": 1,
+      "lat": 44.05800,
+      "lon": -121.30260,
+      "tags": {
+        "highway": "crossing",
+        "crossing": "traffic_signals",
+        "kerb": "lowered",
+        "kerb:tactile_paving": "yes",
+        "tactile_paving": "yes",
+        "traffic_signals:sound": "yes",
+        "traffic_signals:vibration": "yes"
+      }
+    },
+    {
+      "type": "node",
+      "id": 2,
+      "lat": 44.05800,
+      "lon": -121.30220,
+      "tags": {
+        "highway": "crossing",
+        "crossing": "traffic_signals",
+        "kerb": "lowered",
+        "kerb:tactile_paving": "yes",
+        "tactile_paving": "yes",
+        "traffic_signals:sound": "yes",
+        "traffic_signals:vibration": "yes"
+      }
+    },
+    {
+      "type": "node",
+      "id": 3,
+      "lat": 44.05760,
+      "lon": -121.30260,
+      "tags": {
+        "highway": "crossing",
+        "crossing": "marked",
+        "kerb": "lowered",
+        "tactile_paving": "yes"
+      }
+    },
+    {
+      "type": "node",
+      "id": 4,
+      "lat": 44.05760,
+      "lon": -121.30220,
+      "tags": {
+        "highway": "crossing",
+        "crossing": "unmarked",
+        "kerb": "raised",
+        "tactile_paving": "no"
+      }
+    },
+    {
+      "type": "node",
+      "id": 5,
+      "lat": 44.05850,
+      "lon": -121.30260,
+      "tags": {}
+    },
+    {
+      "type": "node",
+      "id": 6,
+      "lat": 44.05850,
+      "lon": -121.30220,
+      "tags": {}
+    },
+    {
+      "type": "node",
+      "id": 7,
+      "lat": 44.05710,
+      "lon": -121.30260,
+      "tags": {}
+    },
+    {
+      "type": "node",
+      "id": 8,
+      "lat": 44.05710,
+      "lon": -121.30220,
+      "tags": {}
+    },
+    {
+      "type": "way",
+      "id": 101,
+      "nodes": [1, 2],
+      "tags": {
+        "highway": "footway",
+        "footway": "crossing",
+        "crossing": "traffic_signals",
+        "crossing:markings": "zebra",
+        "crossing:signals": "yes",
+        "crossing:island": "yes",
+        "traffic_signals:sound": "yes",
+        "traffic_signals:vibration": "yes",
+        "tactile_paving": "yes",
+        "name": "NE Franklin Ave APS Crossing"
+      }
+    },
+    {
+      "type": "way",
+      "id": 102,
+      "nodes": [1, 3],
+      "tags": {
+        "highway": "footway",
+        "footway": "crossing",
+        "crossing": "marked",
+        "crossing:markings": "lines",
+        "tactile_paving": "yes",
+        "name": "West Approach Crossing"
+      }
+    },
+    {
+      "type": "way",
+      "id": 103,
+      "nodes": [3, 4],
+      "tags": {
+        "highway": "footway",
+        "footway": "crossing",
+        "crossing": "unmarked",
+        "tactile_paving": "no",
+        "name": "Hazardous Unmarked Crossing"
+      }
+    },
+    {
+      "type": "way",
+      "id": 104,
+      "nodes": [2, 4],
+      "tags": {
+        "highway": "footway",
+        "footway": "sidewalk",
+        "surface": "concrete",
+        "width": "1.8",
+        "name": "East Corridor Sidewalk"
+      }
+    },
+    {
+      "type": "way",
+      "id": 201,
+      "nodes": [5, 1],
+      "tags": {
+        "highway": "footway",
+        "footway": "sidewalk",
+        "surface": "concrete",
+        "width": "2.0",
+        "tactile_paving": "yes",
+        "name": "NW 3rd St Sidewalk"
+      }
+    },
+    {
+      "type": "way",
+      "id": 202,
+      "nodes": [6, 2],
+      "tags": {
+        "highway": "footway",
+        "footway": "sidewalk",
+        "surface": "concrete",
+        "width": "1.8",
+        "name": "NE 3rd St Sidewalk"
+      }
+    },
+    {
+      "type": "way",
+      "id": 203,
+      "nodes": [3, 7],
+      "tags": {
+        "highway": "footway",
+        "footway": "sidewalk",
+        "surface": "concrete",
+        "width": "1.5",
+        "name": "SW 3rd St Sidewalk"
+      }
+    },
+    {
+      "type": "way",
+      "id": 204,
+      "nodes": [4, 8],
+      "tags": {
+        "highway": "footway",
+        "footway": "sidewalk",
+        "surface": "asphalt",
+        "width": "1.2",
+        "name": "SE 3rd St Sidewalk"
+      }
+    }
+  ]
+}
