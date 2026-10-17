@@ -545,7 +545,7 @@ class GeoJSONExporter:
             except ImportError:
                 carto_api_key = ""
 
-        key_param = f"?api_key={carto_api_key.strip()}" if carto_api_key and carto_api_key.strip() else ""
+        key_param = f"?key={carto_api_key.strip()}" if carto_api_key and carto_api_key.strip() else ""
 
         geojson_dict = GeoJSONExporter.export_route_to_geojson(route, network, instructions)
         geojson_str = json.dumps(geojson_dict)
@@ -694,21 +694,18 @@ class GeoJSONExporter:
     var map = L.map('map').setView([{start_pt[0]}, {start_pt[1]}], 16);
 
     // Multi-source basemap tiles with open access policies that support local file:// viewing without 403 errors
-    var cartoVoyager = L.tileLayer('https://{{s}}.basemaps.cartocdn.com/rastertiles/voyager/{{z}}/{{x}}/{{y}}{{r}}.png{key_param}', {{
+    var cartoVoyager = L.tileLayer('https://basemaps.cartocdn.com/rastertiles/voyager/{{z}}/{{x}}/{{y}}{{r}}.png{key_param}', {{
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-      subdomains: 'abcd',
       maxZoom: 20
     }});
 
-    var cartoDark = L.tileLayer('https://{{s}}.basemaps.cartocdn.com/dark_all/{{z}}/{{x}}/{{y}}{{r}}.png{key_param}', {{
+    var cartoDark = L.tileLayer('https://basemaps.cartocdn.com/dark_all/{{z}}/{{x}}/{{y}}{{r}}.png{key_param}', {{
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-      subdomains: 'abcd',
       maxZoom: 20
     }});
 
-    var cartoPositron = L.tileLayer('https://{{s}}.basemaps.cartocdn.com/light_all/{{z}}/{{x}}/{{y}}{{r}}.png{key_param}', {{
+    var cartoPositron = L.tileLayer('https://basemaps.cartocdn.com/light_all/{{z}}/{{x}}/{{y}}{{r}}.png{key_param}', {{
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-      subdomains: 'abcd',
       maxZoom: 20
     }});
 

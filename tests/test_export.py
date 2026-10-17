@@ -105,8 +105,8 @@ def test_export_route_to_html_carto_api_key(tmp_path, osu_route_and_network):
     assert res_path.exists()
 
     content = out_file.read_text(encoding="utf-8")
-    assert "api_key=test_carto_token_123" in content
-    assert "rastertiles/voyager/{z}/{x}/{y}{r}.png?api_key=test_carto_token_123" in content
-    assert "dark_all/{z}/{x}/{y}{r}.png?api_key=test_carto_token_123" in content
-    assert "light_all/{z}/{x}/{y}{r}.png?api_key=test_carto_token_123" in content
+    assert "key=test_carto_token_123" in content
+    assert "rastertiles/voyager/{z}/{x}/{y}{r}.png?key=test_carto_token_123" in content
+    assert "dark_all/{z}/{x}/{y}{r}.png?key=test_carto_token_123" in content
+    assert "light_all/{z}/{x}/{y}{r}.png?key=test_carto_token_123" in content
 
