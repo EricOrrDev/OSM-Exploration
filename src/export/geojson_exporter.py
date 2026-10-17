@@ -637,6 +637,22 @@ class GeoJSONExporter:
       margin-top: 6px;
       font-style: italic;
     }}
+    .leaflet-control-layers {{
+      background: rgba(15, 23, 42, 0.92) !important;
+      color: #f8fafc !important;
+      border: 1px solid rgba(255, 255, 255, 0.15) !important;
+      border-radius: 8px !important;
+      padding: 10px 14px !important;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4) !important;
+    }}
+    .leaflet-control-layers-base label {{
+      cursor: pointer;
+      font-size: 13px;
+      margin-bottom: 5px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }}
   </style>
 </head>
 <body>
@@ -667,10 +683,40 @@ class GeoJSONExporter:
   <script>
     var map = L.map('map').setView([{start_pt[0]}, {start_pt[1]}], 16);
 
-    L.tileLayer('https://{{s}}.tile.openstreetmap.org/{{z}}/{{x}}/{{y}}.png', {{
-      attribution: '&copy; OpenStreetMap contributors',
+    // Multi-source basemap tiles with open access policies that support local file:// viewing without 403 errors
+    var cartoVoyager = L.tileLayer('https://{{s}}.basemaps.cartocdn.com/rastertiles/voyager/{{z}}/{{x}}/{{y}}{{r}}.png', {{
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+      subdomains: 'abcd',
+      maxZoom: 20
+    }});
+
+    var cartoDark = L.tileLayer('https://{{s}}.basemaps.cartocdn.com/dark_all/{{z}}/{{x}}/{{y}}{{r}}.png', {{
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+      subdomains: 'abcd',
+      maxZoom: 20
+    }});
+
+    var esriSatellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{{z}}/{{y}}/{{x}}', {{
+      attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
       maxZoom: 19
-    }}).addTo(map);
+    }});
+
+    var esriStreet = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{{z}}/{{y}}/{{x}}', {{
+      attribution: 'Tiles &copy; Esri &mdash; Source: Esri, DeLorme, NAVTEQ, USGS, Intermap, iPC, NRCAN, Esri Japan, METI, Esri China (Hong Kong), Esri (Thailand), TomTom, 2012',
+      maxZoom: 19
+    }});
+
+    // Default to CartoDB Voyager (clean street geometry and labels)
+    cartoVoyager.addTo(map);
+
+    var baseMaps = {{
+      "🗺️ Streets (Voyager)": cartoVoyager,
+      "🌙 Dark Mode": cartoDark,
+      "🛰️ Satellite Imagery": esriSatellite,
+      "🌐 Esri Topo / Streets": esriStreet
+    }};
+
+    L.control.layers(baseMaps, null, {{ position: 'topright' }}).addTo(map);
 
     var routeData = {geojson_str};
 

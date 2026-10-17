@@ -2,7 +2,7 @@
   "type": "FeatureCollection",
   "properties": {
     "title": "Pedestrian Accessible Route",
-    "generated_at": "2026-10-17T02:37:54.141160Z",
+    "generated_at": "2026-10-17T02:45:53.945589+00:00",
     "total_distance_m": 1162.9,
     "accessibility_rating": "Moderate Safety (Standard marked sidewalks)"
   },
