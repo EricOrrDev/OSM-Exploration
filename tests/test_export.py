@@ -91,3 +91,22 @@ def test_export_route_to_html(tmp_path, osu_route_and_network):
     assert "leaflet.css" in content
     assert "Test Route Map" in content
     assert "SW Innovation Way" in content or "SW Century Drive" in content
+    assert "cartocdn.com" in content
+    assert "arcgisonline.com" in content
+
+
+def test_export_route_to_html_carto_api_key(tmp_path, osu_route_and_network):
+    route, network, instructions = osu_route_and_network
+    out_file = tmp_path / "test_map_auth.html"
+
+    res_path = GeoJSONExporter.export_route_to_html(
+        route, network, instructions, out_file, title="Auth Route Map", carto_api_key="test_carto_token_123"
+    )
+    assert res_path.exists()
+
+    content = out_file.read_text(encoding="utf-8")
+    assert "api_key=test_carto_token_123" in content
+    assert "rastertiles/voyager/{z}/{x}/{y}{r}.png?api_key=test_carto_token_123" in content
+    assert "dark_all/{z}/{x}/{y}{r}.png?api_key=test_carto_token_123" in content
+    assert "light_all/{z}/{x}/{y}{r}.png?api_key=test_carto_token_123" in content
+

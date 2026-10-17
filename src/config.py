@@ -5,10 +5,18 @@ from pathlib import Path
 from typing import Tuple
 from dotenv import load_dotenv
 
-load_dotenv()
-
 BASE_DIR = Path(__file__).resolve().parent.parent
 FIXTURES_DIR = BASE_DIR / "fixtures"
+
+# Load .env from multiple potential locations (OSMExploration, parent Capstone, adjacent dirs)
+load_dotenv(Path.cwd() / ".env")
+load_dotenv(BASE_DIR / ".env")
+load_dotenv(BASE_DIR.parent / ".env")
+load_dotenv(BASE_DIR.parent / "GoogleMapsExploration" / ".env")
+load_dotenv()
+
+# CARTO API Key for basemap tile authentication
+CARTO_API_KEY = os.getenv("CARTO_API_KEY", "").strip()
 
 # Cache directory for Overpass queries
 cache_env = os.getenv("CACHE_DIR", "./cache")

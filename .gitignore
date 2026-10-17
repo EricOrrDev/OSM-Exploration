@@ -218,3 +218,6 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Generated route outputs (HTML maps, GeoJSON, GeoPackage containing sensitive API keys)
+output/

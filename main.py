@@ -12,6 +12,7 @@ if str(PROJECT_ROOT) not in sys.path:
 from src.config import (
     BEND_CITY_BBOX,
     BEND_CITY_CACHE_FILE,
+    CARTO_API_KEY,
     DEFAULT_BBOX,
     DEFAULT_END,
     DEFAULT_START,
@@ -134,12 +135,14 @@ def run_route(args: argparse.Namespace) -> None:
     GeoJSONExporter.export_route_to_geojson(route, network, instructions, Path(geojson_path))
     GeoJSONExporter.export_route_to_gpkg(route, network, instructions, Path(gpkg_path))
     title = f"Pedestrian Route: {preset['name']}" if preset_name else "Accessible Pedestrian Route"
-    GeoJSONExporter.export_route_to_html(route, network, instructions, Path(html_path), title=title)
+    carto_key = getattr(args, "carto_key", None) or CARTO_API_KEY
+    GeoJSONExporter.export_route_to_html(route, network, instructions, Path(html_path), title=title, carto_api_key=carto_key)
 
+    auth_label = "Authenticated via CARTO_API_KEY" if carto_key else "Open Access Mode"
     print(f"\n[Exported Map Layers]")
     print(f"  GeoJSON File:      {Path(geojson_path).resolve()}")
     print(f"  GeoPackage SQLite: {Path(gpkg_path).resolve()}")
-    print(f"  Interactive HTML:  {Path(html_path).resolve()} (Open in any browser)")
+    print(f"  Interactive HTML:  {Path(html_path).resolve()} ({auth_label})")
 
     print("\n" + "=" * 75)
     print(f"SCREEN-READER AUDIO GUIDANCE ({len(instructions)} INSTRUCTIONS)")
@@ -238,6 +241,7 @@ def main() -> None:
     route_p.add_argument("--export-geojson", type=str, default=None, help="Path to export calculated route as GeoJSON")
     route_p.add_argument("--export-gpkg", type=str, default=None, help="Path to export calculated route as OGC GeoPackage SQLite (.gpkg)")
     route_p.add_argument("--export-html", type=str, default=None, help="Path to export interactive web map (.html)")
+    route_p.add_argument("--carto-key", type=str, default=None, help="CARTO API key for basemap tiles (overrides CARTO_API_KEY in .env)")
 
     # Coverage
     cov_p = subparsers.add_parser("coverage", help="Benchmark OSM tag completeness against municipal GIS")
