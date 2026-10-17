@@ -118,16 +118,28 @@ def run_route(args: argparse.Namespace) -> None:
     print(f"  Safety Rating:              {route.accessibility_rating}")
     print(f"  Total Path Nodes Traversed: {len(route.node_path)} nodes")
 
-    # Export route to GeoJSON if requested
-    export_path = getattr(args, "export_geojson", None)
-    if export_path:
-        out_f = Path(export_path)
-        GeoJSONExporter.export_route_to_geojson(route, network, out_f)
-        print(f"  Exported Route GeoJSON:     {out_f.resolve()}")
-
     # Generate Audio Guidance
     guidance_gen = AudioGuidanceGenerator(network)
     instructions = guidance_gen.generate_instructions(route)
+
+    # Export route map files (GeoJSON, GeoPackage, interactive HTML)
+    out_dir = Path("output")
+    out_dir.mkdir(parents=True, exist_ok=True)
+    file_prefix = preset_name if preset_name else "route"
+
+    geojson_path = getattr(args, "export_geojson", None) or str(out_dir / f"{file_prefix}_route.geojson")
+    gpkg_path = getattr(args, "export_gpkg", None) or str(out_dir / f"{file_prefix}_route.gpkg")
+    html_path = getattr(args, "export_html", None) or str(out_dir / f"{file_prefix}_map.html")
+
+    GeoJSONExporter.export_route_to_geojson(route, network, instructions, Path(geojson_path))
+    GeoJSONExporter.export_route_to_gpkg(route, network, instructions, Path(gpkg_path))
+    title = f"Pedestrian Route: {preset['name']}" if preset_name else "Accessible Pedestrian Route"
+    GeoJSONExporter.export_route_to_html(route, network, instructions, Path(html_path), title=title)
+
+    print(f"\n[Exported Map Layers]")
+    print(f"  GeoJSON File:      {Path(geojson_path).resolve()}")
+    print(f"  GeoPackage SQLite: {Path(gpkg_path).resolve()}")
+    print(f"  Interactive HTML:  {Path(html_path).resolve()} (Open in any browser)")
 
     print("\n" + "=" * 75)
     print(f"SCREEN-READER AUDIO GUIDANCE ({len(instructions)} INSTRUCTIONS)")
@@ -224,6 +236,8 @@ def main() -> None:
     route_p.add_argument("--end-lat", type=float, default=DEFAULT_END[0])
     route_p.add_argument("--end-lon", type=float, default=DEFAULT_END[1])
     route_p.add_argument("--export-geojson", type=str, default=None, help="Path to export calculated route as GeoJSON")
+    route_p.add_argument("--export-gpkg", type=str, default=None, help="Path to export calculated route as OGC GeoPackage SQLite (.gpkg)")
+    route_p.add_argument("--export-html", type=str, default=None, help="Path to export interactive web map (.html)")
 
     # Coverage
     cov_p = subparsers.add_parser("coverage", help="Benchmark OSM tag completeness against municipal GIS")

@@ -1,0 +1,3413 @@
+{
+  "type": "FeatureCollection",
+  "properties": {
+    "title": "Pedestrian Accessible Route",
+    "generated_at": "2026-10-17T02:37:54.141160Z",
+    "total_distance_m": 1162.9,
+    "accessibility_rating": "Moderate Safety (Standard marked sidewalks)"
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "id": "route_corridor",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -121.3355586,
+            44.0444807
+          ],
+          [
+            -121.3354862,
+            44.044417
+          ],
+          [
+            -121.3353762,
+            44.0444305
+          ],
+          [
+            -121.3352233,
+            44.044419
+          ],
+          [
+            -121.3352059,
+            44.0443341
+          ],
+          [
+            -121.3351858,
+            44.044284
+          ],
+          [
+            -121.335171,
+            44.0442406
+          ],
+          [
+            -121.3351681,
+            44.0442088
+          ],
+          [
+            -121.3352394,
+            44.044203
+          ],
+          [
+            -121.335289,
+            44.0441654
+          ],
+          [
+            -121.3353226,
+            44.044124
+          ],
+          [
+            -121.3353702,
+            44.0440685
+          ],
+          [
+            -121.3353467,
+            44.0440039
+          ],
+          [
+            -121.335336,
+            44.0439167
+          ],
+          [
+            -121.335212,
+            44.0439412
+          ],
+          [
+            -121.3346601,
+            44.0441259
+          ],
+          [
+            -121.3346125,
+            44.0438761
+          ],
+          [
+            -121.334082,
+            44.0438936
+          ],
+          [
+            -121.3340431,
+            44.0438097
+          ],
+          [
+            -121.3340284,
+            44.0437413
+          ],
+          [
+            -121.3340479,
+            44.043635
+          ],
+          [
+            -121.3339562,
+            44.0436242
+          ],
+          [
+            -121.3338309,
+            44.0436053
+          ],
+          [
+            -121.3337507,
+            44.0435901
+          ],
+          [
+            -121.3337019,
+            44.0435807
+          ],
+          [
+            -121.3336855,
+            44.0435678
+          ],
+          [
+            -121.3336569,
+            44.043561
+          ],
+          [
+            -121.3336508,
+            44.0435748
+          ],
+          [
+            -121.3336434,
+            44.0435871
+          ],
+          [
+            -121.3336402,
+            44.0435937
+          ],
+          [
+            -121.3336043,
+            44.043587
+          ],
+          [
+            -121.33358,
+            44.0435825
+          ],
+          [
+            -121.3335487,
+            44.0435776
+          ],
+          [
+            -121.333519,
+            44.0435723
+          ],
+          [
+            -121.3321333,
+            44.0433237
+          ],
+          [
+            -121.3314476,
+            44.0432036
+          ],
+          [
+            -121.3314315,
+            44.043261
+          ],
+          [
+            -121.3314097,
+            44.0433385
+          ],
+          [
+            -121.3314112,
+            44.0433697
+          ],
+          [
+            -121.331396,
+            44.0434652
+          ],
+          [
+            -121.3313906,
+            44.0435242
+          ],
+          [
+            -121.3313217,
+            44.0440952
+          ],
+          [
+            -121.3312872,
+            44.044562
+          ],
+          [
+            -121.3312945,
+            44.0446232
+          ],
+          [
+            -121.3312482,
+            44.0446376
+          ],
+          [
+            -121.3312139,
+            44.0446407
+          ],
+          [
+            -121.3311846,
+            44.0446433
+          ],
+          [
+            -121.3311389,
+            44.0446474
+          ],
+          [
+            -121.331108,
+            44.0446502
+          ],
+          [
+            -121.3310782,
+            44.0446528
+          ],
+          [
+            -121.3309951,
+            44.0446603
+          ],
+          [
+            -121.3309801,
+            44.0447219
+          ],
+          [
+            -121.3309569,
+            44.0447545
+          ],
+          [
+            -121.3309009,
+            44.0447868
+          ],
+          [
+            -121.3309063,
+            44.044823
+          ],
+          [
+            -121.330929,
+            44.0448849
+          ],
+          [
+            -121.3309404,
+            44.0449162
+          ],
+          [
+            -121.3309947,
+            44.0449265
+          ],
+          [
+            -121.3310334,
+            44.0449552
+          ],
+          [
+            -121.3310274,
+            44.0450387
+          ],
+          [
+            -121.3310236,
+            44.0450608
+          ],
+          [
+            -121.3310387,
+            44.0452922
+          ],
+          [
+            -121.3311322,
+            44.0457769
+          ],
+          [
+            -121.3311551,
+            44.045886
+          ],
+          [
+            -121.3311759,
+            44.0459278
+          ],
+          [
+            -121.3312226,
+            44.0462002
+          ],
+          [
+            -121.3312362,
+            44.0462274
+          ],
+          [
+            -121.3312542,
+            44.0462783
+          ],
+          [
+            -121.3312618,
+            44.0463114
+          ],
+          [
+            -121.3312694,
+            44.0463445
+          ],
+          [
+            -121.3312779,
+            44.0464248
+          ],
+          [
+            -121.331259,
+            44.0464865
+          ],
+          [
+            -121.3313131,
+            44.0467226
+          ],
+          [
+            -121.3313837,
+            44.0467853
+          ],
+          [
+            -121.3313912,
+            44.0468889
+          ],
+          [
+            -121.3313681,
+            44.0469623
+          ],
+          [
+            -121.3313719,
+            44.0469889
+          ],
+          [
+            -121.3313845,
+            44.0470302
+          ],
+          [
+            -121.33139,
+            44.047057
+          ],
+          [
+            -121.3314772,
+            44.0474859
+          ],
+          [
+            -121.3315583,
+            44.0475808
+          ],
+          [
+            -121.3315578,
+            44.0476069
+          ],
+          [
+            -121.3315573,
+            44.047636
+          ],
+          [
+            -121.3315375,
+            44.0476868
+          ],
+          [
+            -121.3314887,
+            44.0477316
+          ],
+          [
+            -121.331417,
+            44.0477503
+          ],
+          [
+            -121.331337,
+            44.0477472
+          ],
+          [
+            -121.3309971,
+            44.0477339
+          ],
+          [
+            -121.3301845,
+            44.0477212
+          ],
+          [
+            -121.3300962,
+            44.0477152
+          ],
+          [
+            -121.3300323,
+            44.0477241
+          ],
+          [
+            -121.3297533,
+            44.0477697
+          ],
+          [
+            -121.3296161,
+            44.0477794
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route_corridor",
+        "name": "Full Pedestrian Route Path",
+        "total_distance_m": 1162.9,
+        "effective_cost": 1291.2,
+        "accessibility_rating": "Moderate Safety (Standard marked sidewalks)",
+        "num_edges": 92,
+        "num_instructions": 40,
+        "stroke": "#2563EB",
+        "stroke-width": 6,
+        "stroke-opacity": 0.85
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "segment_0_sidewalk",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -121.3355586,
+            44.0444807
+          ],
+          [
+            -121.3354862,
+            44.044417
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route_segment",
+        "segment_type": "sidewalk",
+        "edge_index": 0,
+        "street_name": null,
+        "length_m": 9.146398367387812,
+        "surface": "gravel",
+        "has_tactile_paving": false,
+        "spoken_instruction": "Follow gravel sidewalk for 54 meters.",
+        "stroke": "#10B981",
+        "stroke-width": 4
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "segment_1_sidewalk",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -121.3354862,
+            44.044417
+          ],
+          [
+            -121.3353762,
+            44.0444305
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route_segment",
+        "segment_type": "sidewalk",
+        "edge_index": 1,
+        "street_name": null,
+        "length_m": 8.919202704488853,
+        "surface": "gravel",
+        "has_tactile_paving": false,
+        "spoken_instruction": "Follow sidewalk for 100 meters.",
+        "stroke": "#10B981",
+        "stroke-width": 4
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "segment_2_sidewalk",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -121.3353762,
+            44.0444305
+          ],
+          [
+            -121.3352233,
+            44.044419
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route_segment",
+        "segment_type": "sidewalk",
+        "edge_index": 2,
+        "street_name": null,
+        "length_m": 12.287560786735838,
+        "surface": "gravel",
+        "has_tactile_paving": false,
+        "spoken_instruction": "Follow paved Pedestrian Transition Walkway for 28 meters.",
+        "stroke": "#10B981",
+        "stroke-width": 4
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "segment_3_sidewalk",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -121.3352233,
+            44.044419
+          ],
+          [
+            -121.3352059,
+            44.0443341
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route_segment",
+        "segment_type": "sidewalk",
+        "edge_index": 3,
+        "street_name": null,
+        "length_m": 9.54233807964172,
+        "surface": "gravel",
+        "has_tactile_paving": false,
+        "spoken_instruction": "Follow gravel sidewalk for 72 meters.",
+        "stroke": "#10B981",
+        "stroke-width": 4
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "segment_4_sidewalk",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -121.3352059,
+            44.0443341
+          ],
+          [
+            -121.3351858,
+            44.044284
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route_segment",
+        "segment_type": "sidewalk",
+        "edge_index": 4,
+        "street_name": null,
+        "length_m": 5.797887963899909,
+        "surface": "gravel",
+        "has_tactile_paving": false,
+        "spoken_instruction": "Follow sidewalk for 380 meters.",
+        "stroke": "#10B981",
+        "stroke-width": 4
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "segment_5_sidewalk",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -121.3351858,
+            44.044284
+          ],
+          [
+            -121.335171,
+            44.0442406
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route_segment",
+        "segment_type": "sidewalk",
+        "edge_index": 5,
+        "street_name": null,
+        "length_m": 4.968725206472228,
+        "surface": "gravel",
+        "has_tactile_paving": false,
+        "spoken_instruction": "Follow sidewalk for 4 meters.",
+        "stroke": "#10B981",
+        "stroke-width": 4
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "segment_6_sidewalk",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -121.335171,
+            44.0442406
+          ],
+          [
+            -121.3351681,
+            44.0442088
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route_segment",
+        "segment_type": "sidewalk",
+        "edge_index": 6,
+        "street_name": null,
+        "length_m": 3.5435875585059113,
+        "surface": "gravel",
+        "has_tactile_paving": false,
+        "spoken_instruction": "Follow sidewalk for 23 meters.",
+        "stroke": "#10B981",
+        "stroke-width": 4
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "segment_7_sidewalk",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -121.3351681,
+            44.0442088
+          ],
+          [
+            -121.3352394,
+            44.044203
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route_segment",
+        "segment_type": "sidewalk",
+        "edge_index": 7,
+        "street_name": null,
+        "length_m": 5.735194733466873,
+        "surface": null,
+        "has_tactile_paving": false,
+        "spoken_instruction": "Follow sidewalk for 149 meters.",
+        "stroke": "#10B981",
+        "stroke-width": 4
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "segment_8_sidewalk",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -121.3352394,
+            44.044203
+          ],
+          [
+            -121.335289,
+            44.0441654
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route_segment",
+        "segment_type": "sidewalk",
+        "edge_index": 8,
+        "street_name": null,
+        "length_m": 5.761649758638457,
+        "surface": null,
+        "has_tactile_paving": false,
+        "spoken_instruction": "Follow sidewalk for 75 meters.",
+        "stroke": "#10B981",
+        "stroke-width": 4
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "segment_9_sidewalk",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -121.335289,
+            44.0441654
+          ],
+          [
+            -121.3353226,
+            44.044124
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route_segment",
+        "segment_type": "sidewalk",
+        "edge_index": 9,
+        "street_name": null,
+        "length_m": 5.329556413924898,
+        "surface": null,
+        "has_tactile_paving": false,
+        "spoken_instruction": "Follow sidewalk for 230 meters.",
+        "stroke": "#10B981",
+        "stroke-width": 4
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "segment_10_sidewalk",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -121.3353226,
+            44.044124
+          ],
+          [
+            -121.3353702,
+            44.0440685
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route_segment",
+        "segment_type": "sidewalk",
+        "edge_index": 10,
+        "street_name": null,
+        "length_m": 7.249810447913867,
+        "surface": null,
+        "has_tactile_paving": false,
+        "spoken_instruction": null,
+        "stroke": "#10B981",
+        "stroke-width": 4
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "segment_11_sidewalk",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -121.3353702,
+            44.0440685
+          ],
+          [
+            -121.3353467,
+            44.0440039
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route_segment",
+        "segment_type": "sidewalk",
+        "edge_index": 11,
+        "street_name": null,
+        "length_m": 7.424705510805077,
+        "surface": null,
+        "has_tactile_paving": false,
+        "spoken_instruction": null,
+        "stroke": "#10B981",
+        "stroke-width": 4
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "segment_12_sidewalk",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -121.3353467,
+            44.0440039
+          ],
+          [
+            -121.335336,
+            44.0439167
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route_segment",
+        "segment_type": "sidewalk",
+        "edge_index": 12,
+        "street_name": null,
+        "length_m": 9.73384092760788,
+        "surface": null,
+        "has_tactile_paving": false,
+        "spoken_instruction": null,
+        "stroke": "#10B981",
+        "stroke-width": 4
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "segment_13_sidewalk",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -121.335336,
+            44.0439167
+          ],
+          [
+            -121.335212,
+            44.0439412
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route_segment",
+        "segment_type": "sidewalk",
+        "edge_index": 13,
+        "street_name": null,
+        "length_m": 10.278631519247899,
+        "surface": null,
+        "has_tactile_paving": false,
+        "spoken_instruction": null,
+        "stroke": "#10B981",
+        "stroke-width": 4
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "segment_14_sidewalk",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -121.335212,
+            44.0439412
+          ],
+          [
+            -121.3346601,
+            44.0441259
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route_segment",
+        "segment_type": "sidewalk",
+        "edge_index": 14,
+        "street_name": null,
+        "length_m": 48.65867931365582,
+        "surface": null,
+        "has_tactile_paving": false,
+        "spoken_instruction": null,
+        "stroke": "#10B981",
+        "stroke-width": 4
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "segment_15_sidewalk",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -121.3346601,
+            44.0441259
+          ],
+          [
+            -121.3346125,
+            44.0438761
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route_segment",
+        "segment_type": "sidewalk",
+        "edge_index": 15,
+        "street_name": "Pedestrian Transition Walkway",
+        "length_m": 28.03583728530665,
+        "surface": "paved",
+        "has_tactile_paving": false,
+        "spoken_instruction": null,
+        "stroke": "#10B981",
+        "stroke-width": 4
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "segment_16_sidewalk",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -121.3346125,
+            44.0438761
+          ],
+          [
+            -121.334082,
+            44.0438936
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route_segment",
+        "segment_type": "sidewalk",
+        "edge_index": 16,
+        "street_name": null,
+        "length_m": 42.446299158623006,
+        "surface": "gravel",
+        "has_tactile_paving": false,
+        "spoken_instruction": null,
+        "stroke": "#10B981",
+        "stroke-width": 4
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "segment_17_sidewalk",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -121.334082,
+            44.0438936
+          ],
+          [
+            -121.3340431,
+            44.0438097
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route_segment",
+        "segment_type": "sidewalk",
+        "edge_index": 17,
+        "street_name": null,
+        "length_m": 9.833720389544032,
+        "surface": "gravel",
+        "has_tactile_paving": false,
+        "spoken_instruction": null,
+        "stroke": "#10B981",
+        "stroke-width": 4
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "segment_18_sidewalk",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -121.3340431,
+            44.0438097
+          ],
+          [
+            -121.3340284,
+            44.0437413
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route_segment",
+        "segment_type": "sidewalk",
+        "edge_index": 18,
+        "street_name": null,
+        "length_m": 7.6959507811074825,
+        "surface": "gravel",
+        "has_tactile_paving": false,
+        "spoken_instruction": null,
+        "stroke": "#10B981",
+        "stroke-width": 4
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "segment_19_sidewalk",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -121.3340284,
+            44.0437413
+          ],
+          [
+            -121.3340479,
+            44.043635
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route_segment",
+        "segment_type": "sidewalk",
+        "edge_index": 19,
+        "street_name": null,
+        "length_m": 11.92233667688678,
+        "surface": "gravel",
+        "has_tactile_paving": false,
+        "spoken_instruction": null,
+        "stroke": "#10B981",
+        "stroke-width": 4
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "segment_20_sidewalk",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -121.3340479,
+            44.043635
+          ],
+          [
+            -121.3339562,
+            44.0436242
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route_segment",
+        "segment_type": "sidewalk",
+        "edge_index": 20,
+        "street_name": null,
+        "length_m": 7.42713737304295,
+        "surface": null,
+        "has_tactile_paving": false,
+        "spoken_instruction": null,
+        "stroke": "#10B981",
+        "stroke-width": 4
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "segment_21_sidewalk",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -121.3339562,
+            44.0436242
+          ],
+          [
+            -121.3338309,
+            44.0436053
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route_segment",
+        "segment_type": "sidewalk",
+        "edge_index": 21,
+        "street_name": null,
+        "length_m": 10.233119547154555,
+        "surface": null,
+        "has_tactile_paving": false,
+        "spoken_instruction": null,
+        "stroke": "#10B981",
+        "stroke-width": 4
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "segment_22_sidewalk",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -121.3338309,
+            44.0436053
+          ],
+          [
+            -121.3337507,
+            44.0435901
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route_segment",
+        "segment_type": "sidewalk",
+        "edge_index": 22,
+        "street_name": null,
+        "length_m": 6.629312503083748,
+        "surface": null,
+        "has_tactile_paving": false,
+        "spoken_instruction": null,
+        "stroke": "#10B981",
+        "stroke-width": 4
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "segment_23_sidewalk",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -121.3337507,
+            44.0435901
+          ],
+          [
+            -121.3337019,
+            44.0435807
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route_segment",
+        "segment_type": "sidewalk",
+        "edge_index": 23,
+        "street_name": null,
+        "length_m": 4.038113845331906,
+        "surface": null,
+        "has_tactile_paving": false,
+        "spoken_instruction": null,
+        "stroke": "#10B981",
+        "stroke-width": 4
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "segment_24_sidewalk",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -121.3337019,
+            44.0435807
+          ],
+          [
+            -121.3336855,
+            44.0435678
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route_segment",
+        "segment_type": "sidewalk",
+        "edge_index": 24,
+        "street_name": null,
+        "length_m": 1.9431416213998491,
+        "surface": null,
+        "has_tactile_paving": false,
+        "spoken_instruction": null,
+        "stroke": "#10B981",
+        "stroke-width": 4
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "segment_25_sidewalk",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -121.3336855,
+            44.0435678
+          ],
+          [
+            -121.3336569,
+            44.043561
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route_segment",
+        "segment_type": "sidewalk",
+        "edge_index": 25,
+        "street_name": null,
+        "length_m": 2.4077530977076487,
+        "surface": null,
+        "has_tactile_paving": false,
+        "spoken_instruction": null,
+        "stroke": "#10B981",
+        "stroke-width": 4
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "segment_26_sidewalk",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -121.3336569,
+            44.043561
+          ],
+          [
+            -121.3336508,
+            44.0435748
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route_segment",
+        "segment_type": "sidewalk",
+        "edge_index": 26,
+        "street_name": null,
+        "length_m": 1.6100857475944041,
+        "surface": null,
+        "has_tactile_paving": false,
+        "spoken_instruction": null,
+        "stroke": "#10B981",
+        "stroke-width": 4
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "segment_27_sidewalk",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -121.3336508,
+            44.0435748
+          ],
+          [
+            -121.3336434,
+            44.0435871
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route_segment",
+        "segment_type": "sidewalk",
+        "edge_index": 27,
+        "street_name": null,
+        "length_m": 1.4901112609940648,
+        "surface": null,
+        "has_tactile_paving": false,
+        "spoken_instruction": null,
+        "stroke": "#10B981",
+        "stroke-width": 4
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "segment_28_sidewalk",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -121.3336434,
+            44.0435871
+          ],
+          [
+            -121.3336402,
+            44.0435937
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route_segment",
+        "segment_type": "sidewalk",
+        "edge_index": 28,
+        "street_name": null,
+        "length_m": 0.7771793534048809,
+        "surface": null,
+        "has_tactile_paving": false,
+        "spoken_instruction": null,
+        "stroke": "#10B981",
+        "stroke-width": 4
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "segment_29_sidewalk",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -121.3336402,
+            44.0435937
+          ],
+          [
+            -121.3336043,
+            44.043587
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route_segment",
+        "segment_type": "sidewalk",
+        "edge_index": 29,
+        "street_name": null,
+        "length_m": 2.9645586395744723,
+        "surface": null,
+        "has_tactile_paving": false,
+        "spoken_instruction": null,
+        "stroke": "#10B981",
+        "stroke-width": 4
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "segment_30_sidewalk",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -121.3336043,
+            44.043587
+          ],
+          [
+            -121.33358,
+            44.0435825
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route_segment",
+        "segment_type": "sidewalk",
+        "edge_index": 30,
+        "street_name": null,
+        "length_m": 2.0056740924955108,
+        "surface": null,
+        "has_tactile_paving": false,
+        "spoken_instruction": null,
+        "stroke": "#10B981",
+        "stroke-width": 4
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "segment_31_sidewalk",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -121.33358,
+            44.0435825
+          ],
+          [
+            -121.3335487,
+            44.0435776
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route_segment",
+        "segment_type": "sidewalk",
+        "edge_index": 31,
+        "street_name": null,
+        "length_m": 2.5603959554626585,
+        "surface": null,
+        "has_tactile_paving": false,
+        "spoken_instruction": null,
+        "stroke": "#10B981",
+        "stroke-width": 4
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "segment_32_sidewalk",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -121.3335487,
+            44.0435776
+          ],
+          [
+            -121.333519,
+            44.0435723
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route_segment",
+        "segment_type": "sidewalk",
+        "edge_index": 32,
+        "street_name": null,
+        "length_m": 2.4459264373532505,
+        "surface": null,
+        "has_tactile_paving": false,
+        "spoken_instruction": null,
+        "stroke": "#10B981",
+        "stroke-width": 4
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "segment_33_sidewalk",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -121.333519,
+            44.0435723
+          ],
+          [
+            -121.3321333,
+            44.0433237
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route_segment",
+        "segment_type": "sidewalk",
+        "edge_index": 33,
+        "street_name": null,
+        "length_m": 114.15421724239474,
+        "surface": null,
+        "has_tactile_paving": false,
+        "spoken_instruction": null,
+        "stroke": "#10B981",
+        "stroke-width": 4
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "segment_34_sidewalk",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -121.3321333,
+            44.0433237
+          ],
+          [
+            -121.3314476,
+            44.0432036
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route_segment",
+        "segment_type": "sidewalk",
+        "edge_index": 34,
+        "street_name": null,
+        "length_m": 56.410582507251476,
+        "surface": null,
+        "has_tactile_paving": false,
+        "spoken_instruction": null,
+        "stroke": "#10B981",
+        "stroke-width": 4
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "segment_35_sidewalk",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -121.3314476,
+            44.0432036
+          ],
+          [
+            -121.3314315,
+            44.043261
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route_segment",
+        "segment_type": "sidewalk",
+        "edge_index": 35,
+        "street_name": null,
+        "length_m": 6.511023347635661,
+        "surface": null,
+        "has_tactile_paving": false,
+        "spoken_instruction": null,
+        "stroke": "#10B981",
+        "stroke-width": 4
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "segment_36_sidewalk",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -121.3314315,
+            44.043261
+          ],
+          [
+            -121.3314097,
+            44.0433385
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route_segment",
+        "segment_type": "sidewalk",
+        "edge_index": 36,
+        "street_name": null,
+        "length_m": 8.79199931179361,
+        "surface": null,
+        "has_tactile_paving": false,
+        "spoken_instruction": null,
+        "stroke": "#10B981",
+        "stroke-width": 4
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "segment_37_sidewalk",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -121.3314097,
+            44.0433385
+          ],
+          [
+            -121.3314112,
+            44.0433697
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route_segment",
+        "segment_type": "sidewalk",
+        "edge_index": 37,
+        "street_name": null,
+        "length_m": 3.4713527411813105,
+        "surface": null,
+        "has_tactile_paving": false,
+        "spoken_instruction": null,
+        "stroke": "#10B981",
+        "stroke-width": 4
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "segment_38_sidewalk",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -121.3314112,
+            44.0433697
+          ],
+          [
+            -121.331396,
+            44.0434652
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route_segment",
+        "segment_type": "sidewalk",
+        "edge_index": 38,
+        "street_name": null,
+        "length_m": 10.688387323103042,
+        "surface": null,
+        "has_tactile_paving": false,
+        "spoken_instruction": null,
+        "stroke": "#10B981",
+        "stroke-width": 4
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "segment_39_sidewalk",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -121.331396,
+            44.0434652
+          ],
+          [
+            -121.3313906,
+            44.0435242
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route_segment",
+        "segment_type": "sidewalk",
+        "edge_index": 39,
+        "street_name": null,
+        "length_m": 6.57468315468544,
+        "surface": null,
+        "has_tactile_paving": false,
+        "spoken_instruction": null,
+        "stroke": "#10B981",
+        "stroke-width": 4
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "segment_40_sidewalk",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -121.3313906,
+            44.0435242
+          ],
+          [
+            -121.3313217,
+            44.0440952
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route_segment",
+        "segment_type": "sidewalk",
+        "edge_index": 40,
+        "street_name": null,
+        "length_m": 63.73068274246825,
+        "surface": null,
+        "has_tactile_paving": false,
+        "spoken_instruction": null,
+        "stroke": "#10B981",
+        "stroke-width": 4
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "segment_41_sidewalk",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -121.3313217,
+            44.0440952
+          ],
+          [
+            -121.3312872,
+            44.044562
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route_segment",
+        "segment_type": "sidewalk",
+        "edge_index": 41,
+        "street_name": null,
+        "length_m": 51.9789856673201,
+        "surface": null,
+        "has_tactile_paving": false,
+        "spoken_instruction": null,
+        "stroke": "#10B981",
+        "stroke-width": 4
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "segment_42_sidewalk",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -121.3312872,
+            44.044562
+          ],
+          [
+            -121.3312945,
+            44.0446232
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route_segment",
+        "segment_type": "sidewalk",
+        "edge_index": 42,
+        "street_name": null,
+        "length_m": 6.830096614600031,
+        "surface": null,
+        "has_tactile_paving": false,
+        "spoken_instruction": null,
+        "stroke": "#10B981",
+        "stroke-width": 4
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "segment_43_sidewalk",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -121.3312945,
+            44.0446232
+          ],
+          [
+            -121.3312482,
+            44.0446376
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route_segment",
+        "segment_type": "sidewalk",
+        "edge_index": 43,
+        "street_name": null,
+        "length_m": 4.03216631035082,
+        "surface": null,
+        "has_tactile_paving": false,
+        "spoken_instruction": null,
+        "stroke": "#10B981",
+        "stroke-width": 4
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "segment_44_crosswalk",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -121.3312482,
+            44.0446376
+          ],
+          [
+            -121.3312139,
+            44.0446407
+          ],
+          [
+            -121.3311846,
+            44.0446433
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route_segment",
+        "segment_type": "crosswalk",
+        "edge_index": 44,
+        "road_crossed": "SW Innovation Way",
+        "intersection_type": "roundabout",
+        "semantic_crossing_type": "public_street",
+        "length_m": 2.76307285195832,
+        "markings": "zebra",
+        "has_signals": false,
+        "has_aps": false,
+        "has_refuge": false,
+        "spoken_instruction": "Caution: Roundabout intersection. Free-flowing traffic enters continuously from your left without a traffic light. Cross SW Innovation Way across the roundabout slip lane to reach the splitter island refuge, then check for circulating vehicles before completing the crossing to stay on SW Century Drive. (3 meters (zebra pattern)). Unsignalized crossing, listen carefully for approaching vehicular traffic.",
+        "stroke": "#7C3AED",
+        "stroke-width": 5,
+        "stroke-dasharray": "6, 8"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "segment_45_crosswalk",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -121.3312482,
+            44.0446376
+          ],
+          [
+            -121.3312139,
+            44.0446407
+          ],
+          [
+            -121.3311846,
+            44.0446433
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route_segment",
+        "segment_type": "crosswalk",
+        "edge_index": 45,
+        "road_crossed": "SW Innovation Way",
+        "intersection_type": "roundabout",
+        "semantic_crossing_type": "public_street",
+        "length_m": 2.3596310959885742,
+        "markings": "zebra",
+        "has_signals": false,
+        "has_aps": false,
+        "has_refuge": false,
+        "spoken_instruction": "Caution: Roundabout intersection. Free-flowing traffic enters continuously from your left without a traffic light. Cross SW Innovation Way across the roundabout slip lane to reach the splitter island refuge, then check for circulating vehicles before completing the crossing to stay on SW Century Drive. (2 meters (zebra pattern)). Unsignalized crossing, listen carefully for approaching vehicular traffic.",
+        "stroke": "#7C3AED",
+        "stroke-width": 5,
+        "stroke-dasharray": "6, 8"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "segment_46_sidewalk",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -121.3311846,
+            44.0446433
+          ],
+          [
+            -121.3311389,
+            44.0446474
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route_segment",
+        "segment_type": "sidewalk",
+        "edge_index": 46,
+        "street_name": null,
+        "length_m": 3.6809924647242593,
+        "surface": null,
+        "has_tactile_paving": false,
+        "spoken_instruction": null,
+        "stroke": "#10B981",
+        "stroke-width": 4
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "segment_47_crosswalk",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -121.3311389,
+            44.0446474
+          ],
+          [
+            -121.331108,
+            44.0446502
+          ],
+          [
+            -121.3310782,
+            44.0446528
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route_segment",
+        "segment_type": "crosswalk",
+        "edge_index": 47,
+        "road_crossed": "SW Innovation Way",
+        "intersection_type": "roundabout",
+        "semantic_crossing_type": "public_street",
+        "length_m": 2.4892830863370676,
+        "markings": "zebra",
+        "has_signals": false,
+        "has_aps": false,
+        "has_refuge": false,
+        "spoken_instruction": "Caution: Roundabout intersection. Free-flowing traffic enters continuously from your left without a traffic light. Cross SW Innovation Way across the roundabout slip lane to reach the splitter island refuge, then check for circulating vehicles before completing the crossing to stay on SW Century Drive. (2 meters (zebra pattern)). Unsignalized crossing, listen carefully for approaching vehicular traffic.",
+        "stroke": "#7C3AED",
+        "stroke-width": 5,
+        "stroke-dasharray": "6, 8"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "segment_48_crosswalk",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -121.3311389,
+            44.0446474
+          ],
+          [
+            -121.331108,
+            44.0446502
+          ],
+          [
+            -121.3310782,
+            44.0446528
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route_segment",
+        "segment_type": "crosswalk",
+        "edge_index": 48,
+        "road_crossed": "SW Innovation Way",
+        "intersection_type": "roundabout",
+        "semantic_crossing_type": "public_street",
+        "length_m": 2.399297986152222,
+        "markings": "zebra",
+        "has_signals": false,
+        "has_aps": false,
+        "has_refuge": false,
+        "spoken_instruction": "Caution: Roundabout intersection. Free-flowing traffic enters continuously from your left without a traffic light. Cross SW Innovation Way across the roundabout slip lane to reach the splitter island refuge, then check for circulating vehicles before completing the crossing to stay on SW Century Drive. (2 meters (zebra pattern)). Unsignalized crossing, listen carefully for approaching vehicular traffic.",
+        "stroke": "#7C3AED",
+        "stroke-width": 5,
+        "stroke-dasharray": "6, 8"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "segment_49_sidewalk",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -121.3310782,
+            44.0446528
+          ],
+          [
+            -121.3309951,
+            44.0446603
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route_segment",
+        "segment_type": "sidewalk",
+        "edge_index": 49,
+        "street_name": null,
+        "length_m": 6.694061138204559,
+        "surface": null,
+        "has_tactile_paving": false,
+        "spoken_instruction": null,
+        "stroke": "#10B981",
+        "stroke-width": 4
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "segment_50_sidewalk",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -121.3309951,
+            44.0446603
+          ],
+          [
+            -121.3309801,
+            44.0447219
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route_segment",
+        "segment_type": "sidewalk",
+        "edge_index": 50,
+        "street_name": null,
+        "length_m": 6.953738829132182,
+        "surface": null,
+        "has_tactile_paving": false,
+        "spoken_instruction": null,
+        "stroke": "#10B981",
+        "stroke-width": 4
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "segment_51_sidewalk",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -121.3309801,
+            44.0447219
+          ],
+          [
+            -121.3309569,
+            44.0447545
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route_segment",
+        "segment_type": "sidewalk",
+        "edge_index": 51,
+        "street_name": null,
+        "length_m": 4.0716966516865165,
+        "surface": null,
+        "has_tactile_paving": false,
+        "spoken_instruction": null,
+        "stroke": "#10B981",
+        "stroke-width": 4
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "segment_52_sidewalk",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -121.3309569,
+            44.0447545
+          ],
+          [
+            -121.3309009,
+            44.0447868
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route_segment",
+        "segment_type": "sidewalk",
+        "edge_index": 52,
+        "street_name": null,
+        "length_m": 5.738739227124797,
+        "surface": null,
+        "has_tactile_paving": false,
+        "spoken_instruction": null,
+        "stroke": "#10B981",
+        "stroke-width": 4
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "segment_53_crosswalk",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -121.3309009,
+            44.0447868
+          ],
+          [
+            -121.3309063,
+            44.044823
+          ],
+          [
+            -121.330929,
+            44.0448849
+          ],
+          [
+            -121.3309404,
+            44.0449162
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route_segment",
+        "segment_type": "crosswalk",
+        "edge_index": 53,
+        "road_crossed": "SW Innovation Way",
+        "intersection_type": "roundabout",
+        "semantic_crossing_type": "public_street",
+        "length_m": 4.04832927502164,
+        "markings": "zebra",
+        "has_signals": false,
+        "has_aps": false,
+        "has_refuge": false,
+        "spoken_instruction": "Caution: Roundabout intersection. Free-flowing traffic enters continuously from your left without a traffic light. Cross SW Innovation Way across the roundabout slip lane to stay on SW Century Drive. (4 meters (zebra pattern)). Unsignalized crossing, listen carefully for approaching vehicular traffic.",
+        "stroke": "#7C3AED",
+        "stroke-width": 5,
+        "stroke-dasharray": "6, 8"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "segment_54_crosswalk",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -121.3309009,
+            44.0447868
+          ],
+          [
+            -121.3309063,
+            44.044823
+          ],
+          [
+            -121.330929,
+            44.0448849
+          ],
+          [
+            -121.3309404,
+            44.0449162
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route_segment",
+        "segment_type": "crosswalk",
+        "edge_index": 54,
+        "road_crossed": "SW Innovation Way",
+        "intersection_type": "roundabout",
+        "semantic_crossing_type": "public_street",
+        "length_m": 7.118076611132071,
+        "markings": "zebra",
+        "has_signals": false,
+        "has_aps": false,
+        "has_refuge": false,
+        "spoken_instruction": "Caution: Roundabout intersection. Free-flowing traffic enters continuously from your left without a traffic light. Cross SW Innovation Way across the roundabout slip lane to stay on SW Century Drive. (7 meters (zebra pattern)). Unsignalized crossing, listen carefully for approaching vehicular traffic.",
+        "stroke": "#7C3AED",
+        "stroke-width": 5,
+        "stroke-dasharray": "6, 8"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "segment_55_crosswalk",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -121.3309009,
+            44.0447868
+          ],
+          [
+            -121.3309063,
+            44.044823
+          ],
+          [
+            -121.330929,
+            44.0448849
+          ],
+          [
+            -121.3309404,
+            44.0449162
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route_segment",
+        "segment_type": "crosswalk",
+        "edge_index": 55,
+        "road_crossed": "SW Innovation Way",
+        "intersection_type": "roundabout",
+        "semantic_crossing_type": "public_street",
+        "length_m": 3.5976945976832138,
+        "markings": "zebra",
+        "has_signals": false,
+        "has_aps": false,
+        "has_refuge": false,
+        "spoken_instruction": "Caution: Roundabout intersection. Free-flowing traffic enters continuously from your left without a traffic light. Cross SW Innovation Way across the roundabout slip lane to stay on SW Century Drive. (4 meters (zebra pattern)). Unsignalized crossing, listen carefully for approaching vehicular traffic.",
+        "stroke": "#7C3AED",
+        "stroke-width": 5,
+        "stroke-dasharray": "6, 8"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "segment_56_sidewalk",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -121.3309404,
+            44.0449162
+          ],
+          [
+            -121.3309947,
+            44.0449265
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route_segment",
+        "segment_type": "sidewalk",
+        "edge_index": 56,
+        "street_name": null,
+        "length_m": 4.48857857331787,
+        "surface": null,
+        "has_tactile_paving": false,
+        "spoken_instruction": null,
+        "stroke": "#10B981",
+        "stroke-width": 4
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "segment_57_sidewalk",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -121.3309947,
+            44.0449265
+          ],
+          [
+            -121.3310334,
+            44.0449552
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route_segment",
+        "segment_type": "sidewalk",
+        "edge_index": 57,
+        "street_name": null,
+        "length_m": 4.444314272479615,
+        "surface": null,
+        "has_tactile_paving": false,
+        "spoken_instruction": null,
+        "stroke": "#10B981",
+        "stroke-width": 4
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "segment_58_sidewalk",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -121.3310334,
+            44.0449552
+          ],
+          [
+            -121.3310274,
+            44.0450387
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route_segment",
+        "segment_type": "sidewalk",
+        "edge_index": 58,
+        "street_name": null,
+        "length_m": 9.297152667840727,
+        "surface": null,
+        "has_tactile_paving": false,
+        "spoken_instruction": null,
+        "stroke": "#10B981",
+        "stroke-width": 4
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "segment_59_sidewalk",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -121.3310274,
+            44.0450387
+          ],
+          [
+            -121.3310236,
+            44.0450608
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route_segment",
+        "segment_type": "sidewalk",
+        "edge_index": 59,
+        "street_name": null,
+        "length_m": 2.476105612810976,
+        "surface": null,
+        "has_tactile_paving": false,
+        "spoken_instruction": null,
+        "stroke": "#10B981",
+        "stroke-width": 4
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "segment_60_sidewalk",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -121.3310236,
+            44.0450608
+          ],
+          [
+            -121.3310387,
+            44.0452922
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route_segment",
+        "segment_type": "sidewalk",
+        "edge_index": 60,
+        "street_name": null,
+        "length_m": 25.75879473488868,
+        "surface": null,
+        "has_tactile_paving": false,
+        "spoken_instruction": null,
+        "stroke": "#10B981",
+        "stroke-width": 4
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "segment_61_sidewalk",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -121.3310387,
+            44.0452922
+          ],
+          [
+            -121.3311322,
+            44.0457769
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route_segment",
+        "segment_type": "sidewalk",
+        "edge_index": 61,
+        "street_name": null,
+        "length_m": 54.41180566136245,
+        "surface": null,
+        "has_tactile_paving": false,
+        "spoken_instruction": null,
+        "stroke": "#10B981",
+        "stroke-width": 4
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "segment_62_sidewalk",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -121.3311322,
+            44.0457769
+          ],
+          [
+            -121.3311551,
+            44.045886
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route_segment",
+        "segment_type": "sidewalk",
+        "edge_index": 62,
+        "street_name": null,
+        "length_m": 12.268659156334277,
+        "surface": null,
+        "has_tactile_paving": false,
+        "spoken_instruction": null,
+        "stroke": "#10B981",
+        "stroke-width": 4
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "segment_63_sidewalk",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -121.3311551,
+            44.045886
+          ],
+          [
+            -121.3311759,
+            44.0459278
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route_segment",
+        "segment_type": "sidewalk",
+        "edge_index": 63,
+        "street_name": null,
+        "length_m": 4.936307148434753,
+        "surface": null,
+        "has_tactile_paving": false,
+        "spoken_instruction": null,
+        "stroke": "#10B981",
+        "stroke-width": 4
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "segment_64_sidewalk",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -121.3311759,
+            44.0459278
+          ],
+          [
+            -121.3312226,
+            44.0462002
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route_segment",
+        "segment_type": "sidewalk",
+        "edge_index": 64,
+        "street_name": null,
+        "length_m": 30.518603531595414,
+        "surface": null,
+        "has_tactile_paving": false,
+        "spoken_instruction": null,
+        "stroke": "#10B981",
+        "stroke-width": 4
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "segment_65_crosswalk",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -121.3312226,
+            44.0462002
+          ],
+          [
+            -121.3312362,
+            44.0462274
+          ],
+          [
+            -121.3312542,
+            44.0462783
+          ],
+          [
+            -121.3312618,
+            44.0463114
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route_segment",
+        "segment_type": "crosswalk",
+        "edge_index": 65,
+        "road_crossed": "the South Safeway commercial driveway",
+        "intersection_type": "4-way intersection",
+        "semantic_crossing_type": "commercial_driveway",
+        "length_m": 3.213895813781714,
+        "markings": "lines",
+        "has_signals": false,
+        "has_aps": false,
+        "has_refuge": false,
+        "spoken_instruction": "Continue forward across the South Safeway commercial driveway to stay on SW Century Drive. (3 meters (lines pattern)). Unsignalized crossing, listen carefully for approaching vehicular traffic.",
+        "stroke": "#DC2626",
+        "stroke-width": 5,
+        "stroke-dasharray": "6, 8"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "segment_66_crosswalk",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -121.3312226,
+            44.0462002
+          ],
+          [
+            -121.3312362,
+            44.0462274
+          ],
+          [
+            -121.3312542,
+            44.0462783
+          ],
+          [
+            -121.3312618,
+            44.0463114
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route_segment",
+        "segment_type": "crosswalk",
+        "edge_index": 66,
+        "road_crossed": "the South Safeway commercial driveway",
+        "intersection_type": "4-way intersection",
+        "semantic_crossing_type": "commercial_driveway",
+        "length_m": 5.839800784745944,
+        "markings": "lines",
+        "has_signals": false,
+        "has_aps": false,
+        "has_refuge": false,
+        "spoken_instruction": "Continue forward across the South Safeway commercial driveway to stay on SW Century Drive. (6 meters (lines pattern)). Unsignalized crossing, listen carefully for approaching vehicular traffic.",
+        "stroke": "#DC2626",
+        "stroke-width": 5,
+        "stroke-dasharray": "6, 8"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "segment_67_crosswalk",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -121.3312226,
+            44.0462002
+          ],
+          [
+            -121.3312362,
+            44.0462274
+          ],
+          [
+            -121.3312542,
+            44.0462783
+          ],
+          [
+            -121.3312618,
+            44.0463114
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route_segment",
+        "segment_type": "crosswalk",
+        "edge_index": 67,
+        "road_crossed": "the South Safeway commercial driveway",
+        "intersection_type": "4-way intersection",
+        "semantic_crossing_type": "commercial_driveway",
+        "length_m": 3.730339144128759,
+        "markings": "lines",
+        "has_signals": false,
+        "has_aps": false,
+        "has_refuge": false,
+        "spoken_instruction": "Continue forward across the South Safeway commercial driveway to stay on SW Century Drive. (4 meters (lines pattern)). Unsignalized crossing, listen carefully for approaching vehicular traffic.",
+        "stroke": "#DC2626",
+        "stroke-width": 5,
+        "stroke-dasharray": "6, 8"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "segment_68_sidewalk",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -121.3312618,
+            44.0463114
+          ],
+          [
+            -121.3312694,
+            44.0463445
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route_segment",
+        "segment_type": "sidewalk",
+        "edge_index": 68,
+        "street_name": null,
+        "length_m": 3.7303390882649228,
+        "surface": null,
+        "has_tactile_paving": false,
+        "spoken_instruction": null,
+        "stroke": "#10B981",
+        "stroke-width": 4
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "segment_69_sidewalk",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -121.3312694,
+            44.0463445
+          ],
+          [
+            -121.3312779,
+            44.0464248
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route_segment",
+        "segment_type": "sidewalk",
+        "edge_index": 69,
+        "street_name": null,
+        "length_m": 8.95475967966069,
+        "surface": null,
+        "has_tactile_paving": false,
+        "spoken_instruction": null,
+        "stroke": "#10B981",
+        "stroke-width": 4
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "segment_70_sidewalk",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -121.3312779,
+            44.0464248
+          ],
+          [
+            -121.331259,
+            44.0464865
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route_segment",
+        "segment_type": "sidewalk",
+        "edge_index": 70,
+        "street_name": null,
+        "length_m": 7.025054667490709,
+        "surface": null,
+        "has_tactile_paving": false,
+        "spoken_instruction": null,
+        "stroke": "#10B981",
+        "stroke-width": 4
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "segment_71_sidewalk",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -121.331259,
+            44.0464865
+          ],
+          [
+            -121.3313131,
+            44.0467226
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route_segment",
+        "segment_type": "sidewalk",
+        "edge_index": 71,
+        "street_name": null,
+        "length_m": 26.606812527329435,
+        "surface": null,
+        "has_tactile_paving": false,
+        "spoken_instruction": null,
+        "stroke": "#10B981",
+        "stroke-width": 4
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "segment_72_sidewalk",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -121.3313131,
+            44.0467226
+          ],
+          [
+            -121.3313837,
+            44.0467853
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route_segment",
+        "segment_type": "sidewalk",
+        "edge_index": 72,
+        "street_name": null,
+        "length_m": 8.969220790408581,
+        "surface": null,
+        "has_tactile_paving": false,
+        "spoken_instruction": null,
+        "stroke": "#10B981",
+        "stroke-width": 4
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "segment_73_sidewalk",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -121.3313837,
+            44.0467853
+          ],
+          [
+            -121.3313912,
+            44.0468889
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route_segment",
+        "segment_type": "sidewalk",
+        "edge_index": 73,
+        "street_name": null,
+        "length_m": 11.535379371475173,
+        "surface": null,
+        "has_tactile_paving": false,
+        "spoken_instruction": null,
+        "stroke": "#10B981",
+        "stroke-width": 4
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "segment_74_sidewalk",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -121.3313912,
+            44.0468889
+          ],
+          [
+            -121.3313681,
+            44.0469623
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route_segment",
+        "segment_type": "sidewalk",
+        "edge_index": 74,
+        "street_name": null,
+        "length_m": 8.367918469405167,
+        "surface": null,
+        "has_tactile_paving": false,
+        "spoken_instruction": null,
+        "stroke": "#10B981",
+        "stroke-width": 4
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "segment_75_crosswalk",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -121.3313681,
+            44.0469623
+          ],
+          [
+            -121.3313719,
+            44.0469889
+          ],
+          [
+            -121.3313845,
+            44.0470302
+          ],
+          [
+            -121.33139,
+            44.047057
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route_segment",
+        "segment_type": "crosswalk",
+        "edge_index": 75,
+        "road_crossed": "the Safeway commercial driveway",
+        "intersection_type": "T-junction",
+        "semantic_crossing_type": "commercial_driveway",
+        "length_m": 2.9733368327467673,
+        "markings": "lines",
+        "has_signals": false,
+        "has_aps": false,
+        "has_refuge": false,
+        "spoken_instruction": "At this T-junction, cross the Safeway commercial driveway to continue along SW Century Drive. (3 meters (lines pattern)). Unsignalized crossing, listen carefully for approaching vehicular traffic.",
+        "stroke": "#DC2626",
+        "stroke-width": 5,
+        "stroke-dasharray": "6, 8"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "segment_76_crosswalk",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -121.3313681,
+            44.0469623
+          ],
+          [
+            -121.3313719,
+            44.0469889
+          ],
+          [
+            -121.3313845,
+            44.0470302
+          ],
+          [
+            -121.33139,
+            44.047057
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route_segment",
+        "segment_type": "crosswalk",
+        "edge_index": 76,
+        "road_crossed": "the Safeway commercial driveway",
+        "intersection_type": "T-junction",
+        "semantic_crossing_type": "commercial_driveway",
+        "length_m": 4.701468432001687,
+        "markings": "lines",
+        "has_signals": false,
+        "has_aps": false,
+        "has_refuge": false,
+        "spoken_instruction": "At this T-junction, cross the Safeway commercial driveway to continue along SW Century Drive. (5 meters (lines pattern)). Unsignalized crossing, listen carefully for approaching vehicular traffic.",
+        "stroke": "#DC2626",
+        "stroke-width": 5,
+        "stroke-dasharray": "6, 8"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "segment_77_crosswalk",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -121.3313681,
+            44.0469623
+          ],
+          [
+            -121.3313719,
+            44.0469889
+          ],
+          [
+            -121.3313845,
+            44.0470302
+          ],
+          [
+            -121.33139,
+            44.047057
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route_segment",
+        "segment_type": "crosswalk",
+        "edge_index": 77,
+        "road_crossed": "the Safeway commercial driveway",
+        "intersection_type": "T-junction",
+        "semantic_crossing_type": "commercial_driveway",
+        "length_m": 3.0122704234702615,
+        "markings": "lines",
+        "has_signals": false,
+        "has_aps": false,
+        "has_refuge": false,
+        "spoken_instruction": "At this T-junction, cross the Safeway commercial driveway to continue along SW Century Drive. (3 meters (lines pattern)). Unsignalized crossing, listen carefully for approaching vehicular traffic.",
+        "stroke": "#DC2626",
+        "stroke-width": 5,
+        "stroke-dasharray": "6, 8"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "segment_78_sidewalk",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -121.33139,
+            44.047057
+          ],
+          [
+            -121.3314772,
+            44.0474859
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route_segment",
+        "segment_type": "sidewalk",
+        "edge_index": 78,
+        "street_name": null,
+        "length_m": 48.19803646260232,
+        "surface": null,
+        "has_tactile_paving": false,
+        "spoken_instruction": null,
+        "stroke": "#10B981",
+        "stroke-width": 4
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "segment_79_sidewalk",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -121.3314772,
+            44.0474859
+          ],
+          [
+            -121.3315583,
+            44.0475808
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route_segment",
+        "segment_type": "sidewalk",
+        "edge_index": 79,
+        "street_name": null,
+        "length_m": 12.384106154061413,
+        "surface": null,
+        "has_tactile_paving": false,
+        "spoken_instruction": null,
+        "stroke": "#10B981",
+        "stroke-width": 4
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "segment_80_sidewalk",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -121.3315583,
+            44.0475808
+          ],
+          [
+            -121.3315578,
+            44.0476069
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route_segment",
+        "segment_type": "sidewalk",
+        "edge_index": 80,
+        "street_name": null,
+        "length_m": 2.902462694326765,
+        "surface": null,
+        "has_tactile_paving": false,
+        "spoken_instruction": null,
+        "stroke": "#10B981",
+        "stroke-width": 4
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "segment_81_sidewalk",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -121.3315578,
+            44.0476069
+          ],
+          [
+            -121.3315573,
+            44.047636
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route_segment",
+        "segment_type": "sidewalk",
+        "edge_index": 81,
+        "street_name": null,
+        "length_m": 3.2360191145165573,
+        "surface": null,
+        "has_tactile_paving": false,
+        "spoken_instruction": null,
+        "stroke": "#10B981",
+        "stroke-width": 4
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "segment_82_sidewalk",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -121.3315573,
+            44.047636
+          ],
+          [
+            -121.3315375,
+            44.0476868
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route_segment",
+        "segment_type": "sidewalk",
+        "edge_index": 82,
+        "street_name": null,
+        "length_m": 5.8661779831218634,
+        "surface": null,
+        "has_tactile_paving": false,
+        "spoken_instruction": null,
+        "stroke": "#10B981",
+        "stroke-width": 4
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "segment_83_sidewalk",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -121.3315375,
+            44.0476868
+          ],
+          [
+            -121.3314887,
+            44.0477316
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route_segment",
+        "segment_type": "sidewalk",
+        "edge_index": 83,
+        "street_name": null,
+        "length_m": 6.326721341541309,
+        "surface": null,
+        "has_tactile_paving": false,
+        "spoken_instruction": null,
+        "stroke": "#10B981",
+        "stroke-width": 4
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "segment_84_sidewalk",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -121.3314887,
+            44.0477316
+          ],
+          [
+            -121.331417,
+            44.0477503
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route_segment",
+        "segment_type": "sidewalk",
+        "edge_index": 84,
+        "street_name": null,
+        "length_m": 6.096039276298893,
+        "surface": null,
+        "has_tactile_paving": false,
+        "spoken_instruction": null,
+        "stroke": "#10B981",
+        "stroke-width": 4
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "segment_85_sidewalk",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -121.331417,
+            44.0477503
+          ],
+          [
+            -121.331337,
+            44.0477472
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route_segment",
+        "segment_type": "sidewalk",
+        "edge_index": 85,
+        "street_name": null,
+        "length_m": 6.403088089785085,
+        "surface": null,
+        "has_tactile_paving": false,
+        "spoken_instruction": null,
+        "stroke": "#10B981",
+        "stroke-width": 4
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "segment_86_sidewalk",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -121.331337,
+            44.0477472
+          ],
+          [
+            -121.3309971,
+            44.0477339
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route_segment",
+        "segment_type": "sidewalk",
+        "edge_index": 86,
+        "street_name": null,
+        "length_m": 27.205899496475656,
+        "surface": null,
+        "has_tactile_paving": false,
+        "spoken_instruction": null,
+        "stroke": "#10B981",
+        "stroke-width": 4
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "segment_87_sidewalk",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -121.3309971,
+            44.0477339
+          ],
+          [
+            -121.3301845,
+            44.0477212
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route_segment",
+        "segment_type": "sidewalk",
+        "edge_index": 87,
+        "street_name": null,
+        "length_m": 64.96042808710745,
+        "surface": null,
+        "has_tactile_paving": false,
+        "spoken_instruction": null,
+        "stroke": "#10B981",
+        "stroke-width": 4
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "segment_88_sidewalk",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -121.3301845,
+            44.0477212
+          ],
+          [
+            -121.3300962,
+            44.0477152
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route_segment",
+        "segment_type": "sidewalk",
+        "edge_index": 88,
+        "street_name": null,
+        "length_m": 7.088629896829133,
+        "surface": null,
+        "has_tactile_paving": false,
+        "spoken_instruction": null,
+        "stroke": "#10B981",
+        "stroke-width": 4
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "segment_89_sidewalk",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -121.3300962,
+            44.0477152
+          ],
+          [
+            -121.3300323,
+            44.0477241
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route_segment",
+        "segment_type": "sidewalk",
+        "edge_index": 89,
+        "street_name": null,
+        "length_m": 5.20205377497891,
+        "surface": null,
+        "has_tactile_paving": false,
+        "spoken_instruction": null,
+        "stroke": "#10B981",
+        "stroke-width": 4
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "segment_90_sidewalk",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -121.3300323,
+            44.0477241
+          ],
+          [
+            -121.3297533,
+            44.0477697
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route_segment",
+        "segment_type": "sidewalk",
+        "edge_index": 90,
+        "street_name": null,
+        "length_m": 22.86761865377201,
+        "surface": null,
+        "has_tactile_paving": false,
+        "spoken_instruction": null,
+        "stroke": "#10B981",
+        "stroke-width": 4
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "segment_91_sidewalk",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -121.3297533,
+            44.0477697
+          ],
+          [
+            -121.3296161,
+            44.0477794
+          ]
+        ]
+      },
+      "properties": {
+        "feature_type": "route_segment",
+        "segment_type": "sidewalk",
+        "edge_index": 91,
+        "street_name": null,
+        "length_m": 11.018286500799311,
+        "surface": null,
+        "has_tactile_paving": false,
+        "spoken_instruction": null,
+        "stroke": "#10B981",
+        "stroke-width": 4
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "waypoint_start",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -121.3355586,
+          44.0444807
+        ]
+      },
+      "properties": {
+        "feature_type": "waypoint",
+        "waypoint_type": "start",
+        "name": "Route Start / Origin",
+        "marker-color": "#16A34A",
+        "marker-symbol": "star"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "waypoint_end",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -121.3296161,
+          44.0477794
+        ]
+      },
+      "properties": {
+        "feature_type": "waypoint",
+        "waypoint_type": "destination",
+        "name": "Route Destination",
+        "marker-color": "#DC2626",
+        "marker-symbol": "flag"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "curb_13993393770",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -121.3309063,
+          44.044823
+        ]
+      },
+      "properties": {
+        "feature_type": "curb_ramp",
+        "kerb_type": "unknown",
+        "is_step_free": false,
+        "has_tactile_paving": false,
+        "height_cm": null,
+        "marker-color": "#6B7280"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "curb_13993393774",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -121.330929,
+          44.0448849
+        ]
+      },
+      "properties": {
+        "feature_type": "curb_ramp",
+        "kerb_type": "unknown",
+        "is_step_free": false,
+        "has_tactile_paving": true,
+        "height_cm": null,
+        "marker-color": "#8B5CF6"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "curb_13507484791",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -121.3312139,
+          44.0446407
+        ]
+      },
+      "properties": {
+        "feature_type": "curb_ramp",
+        "kerb_type": "unknown",
+        "is_step_free": false,
+        "has_tactile_paving": false,
+        "height_cm": null,
+        "marker-color": "#6B7280"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "curb_13712897701",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -121.331108,
+          44.0446502
+        ]
+      },
+      "properties": {
+        "feature_type": "curb_ramp",
+        "kerb_type": "unknown",
+        "is_step_free": false,
+        "has_tactile_paving": false,
+        "height_cm": null,
+        "marker-color": "#6B7280"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "curb_3695996850",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -121.3312542,
+          44.0462783
+        ]
+      },
+      "properties": {
+        "feature_type": "curb_ramp",
+        "kerb_type": "unknown",
+        "is_step_free": false,
+        "has_tactile_paving": false,
+        "height_cm": null,
+        "marker-color": "#6B7280"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "curb_12414118373",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -121.3312362,
+          44.0462274
+        ]
+      },
+      "properties": {
+        "feature_type": "curb_ramp",
+        "kerb_type": "unknown",
+        "is_step_free": false,
+        "has_tactile_paving": false,
+        "height_cm": null,
+        "marker-color": "#6B7280"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "curb_12414118381",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -121.3313719,
+          44.0469889
+        ]
+      },
+      "properties": {
+        "feature_type": "curb_ramp",
+        "kerb_type": "unknown",
+        "is_step_free": false,
+        "has_tactile_paving": false,
+        "height_cm": null,
+        "marker-color": "#6B7280"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "curb_12414118382",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -121.3313845,
+          44.0470302
+        ]
+      },
+      "properties": {
+        "feature_type": "curb_ramp",
+        "kerb_type": "unknown",
+        "is_step_free": false,
+        "has_tactile_paving": false,
+        "height_cm": null,
+        "marker-color": "#6B7280"
+      }
+    }
+  ]
+}
