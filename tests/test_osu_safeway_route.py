@@ -37,11 +37,12 @@ def test_osu_safeway_dataset_and_routing():
     assert end_node is not None
     assert start_node != end_node
 
-    # Route computation
+    # Route computation from Tykeson Hall plaza (node 6250184405)
+    assert start_node == 6250184405
     route = graph.route(start_node, end_node)
     assert route is not None
-    # Distance should be between 900m and 1500m (~1.1 km)
-    assert 800.0 < route.total_distance_m < 2000.0
+    # Tykeson Hall to Safeway is ~944 meters
+    assert 850.0 < route.total_distance_m < 1100.0
     assert len(route.node_path) > 10
 
 
@@ -92,9 +93,11 @@ def test_osu_safeway_intersection_and_continuity_guidance():
 
     spoken_text = " ".join(inst["spoken_instruction"] for inst in crossing_steps)
 
-    # 1. SW Century Drive crossing & corridor continuity
+    # 1. SW Century Drive and SW Donovan Avenue crossing & corridor continuity
+    assert "SW Donovan Avenue" in spoken_text
     assert "SW Century Drive" in spoken_text
     assert "stay on SW Century Drive" in spoken_text or "continue along SW Century Drive" in spoken_text
+    assert "Roundabout intersection" not in spoken_text  # Cleanly conflated without false roundabout alert
 
     # 2. Intersection classification metadata attached to crossing steps
     itypes = [inst.get("intersection_type") for inst in crossing_steps]
@@ -115,6 +118,7 @@ def test_osu_safeway_intersection_and_continuity_guidance():
     curb_steps = [inst for inst in instructions if inst["action"] == "APPROACH_CURB"]
     curb_text = " ".join(inst["spoken_instruction"] for inst in curb_steps)
     assert "to cross" in curb_text
+    assert "to cross SW Donovan Avenue" in curb_text
     assert "to cross SW Century Drive" in curb_text
     assert "the Safeway commercial driveway" in curb_text or "the South Safeway commercial driveway" in curb_text
     assert "Be alert for turning customer vehicles entering or exiting the parking lot" in curb_text

@@ -141,8 +141,9 @@ class IntersectionClassifier:
 
         # 1. Determine corridor continuity & turning orientation
         turn_dir, is_continuation, corridor_name = self._determine_continuity(route, edge_idx)
+        osm_bearing = calculate_bearing(coords[0], coords[-1]) if len(coords) >= 2 else None
 
-        muni_match = self._match_municipal_crosswalk(cw_mid, max_dist_m=15.0)
+        muni_match = self._match_municipal_crosswalk(cw_mid, max_dist_m=15.0, osm_bearing=osm_bearing)
         cr_match = self._match_municipal_curb_ramp(cw_mid, max_dist_m=12.0)
         resolved_crossed_street = None
         spoken_road_name = None
@@ -316,12 +317,19 @@ class IntersectionClassifier:
         self,
         coord: Tuple[float, float],
         max_dist_m: float = 15.0,
+        osm_bearing: Optional[float] = None,
     ) -> Optional[Dict[str, Any]]:
-        """Find the closest municipal crosswalk within max_dist_m."""
+        """Find the closest municipal crosswalk within max_dist_m, optionally aligned by bearing."""
         if self.registry:
             hits = self.registry.query_radius(coord[0], coord[1], radius_m=max_dist_m, role=LayerRole.CROSSWALK)
-            if hits:
-                feat, dist = hits[0]
+            for feat, dist in hits:
+                if osm_bearing is not None and feat.coordinates and len(feat.coordinates) >= 2:
+                    muni_b = calculate_bearing(feat.coordinates[0], feat.coordinates[-1])
+                    diff = abs(normalize_angle_diff(osm_bearing, muni_b))
+                    if diff > 90.0:
+                        diff = 180.0 - diff
+                    if diff > 45.0:
+                        continue  # Skip perpendicular crosswalks on other legs of the intersection
                 return {
                     "id": feat.feature_id,
                     "intersection_type": feat.attributes.get("IntersectionType"),
@@ -393,11 +401,14 @@ class IntersectionClassifier:
 
         # 1. Roundabout heuristic
         is_roundabout = False
-        if cw and (cw.has_refuge_island or "roundabout" in str(cw.name or "").lower()):
+        if cw and "roundabout" in str(cw.name or "").lower():
             is_roundabout = True
 
-        # Check for circular pathway cluster around midpoint
-        if not is_roundabout:
+        # Check for circular pathway cluster around midpoint.
+        # Genuine roundabouts in MUTCD/OSM feature splitter island refuges. Requiring cw.has_refuge_island
+        # before running multi-bin circular sidewalk cluster checks prevents straight 4-way/T intersections
+        # with converging walkways (such as campus pathways) from false-positive roundabout detection.
+        if not is_roundabout and cw and cw.has_refuge_island:
             nearby_sw_headings = []
             for sw in self.network.sidewalks.values():
                 for sw_u, sw_v in zip(sw.node_ids[:-1], sw.node_ids[1:]):
@@ -428,13 +439,29 @@ class IntersectionClassifier:
 
         # 2. Incident pathways degree count at entry and exit nodes
         u, v = edge.u, edge.v
-        adj_u_count = sum(1 for sw in self.network.sidewalks.values() if u in sw.node_ids)
-        adj_v_count = sum(1 for sw in self.network.sidewalks.values() if v in sw.node_ids)
+        entry = cw.node_ids[0] if (cw and len(cw.node_ids) >= 2) else u
+        exit_n = cw.node_ids[-1] if (cw and len(cw.node_ids) >= 2) else v
+
+        adj_u_count = sum(1 for sw in self.network.sidewalks.values() if entry in sw.node_ids)
+        adj_v_count = sum(1 for sw in self.network.sidewalks.values() if exit_n in sw.node_ids)
         total_branches = max(adj_u_count, adj_v_count) + 1
 
-        if total_branches >= 4:
+        # Also count distinct nearby sidewalk ways terminating or passing within 15m of entry or exit
+        p_entry = nodes.get(entry)
+        p_exit = nodes.get(exit_n)
+        nearby_sw_ways = set()
+        for sw in self.network.sidewalks.values():
+            for nid in (sw.node_ids[0], sw.node_ids[-1]):
+                p = nodes.get(nid)
+                if p:
+                    if (p_entry and haversine_distance_m(p_entry, p) <= 15.0) or (
+                        p_exit and haversine_distance_m(p_exit, p) <= 15.0
+                    ):
+                        nearby_sw_ways.add(sw.id)
+
+        if total_branches >= 4 or len(nearby_sw_ways) >= 4:
             itype = IntersectionType.FOUR_WAY
-        elif total_branches == 3:
+        elif total_branches == 3 or len(nearby_sw_ways) >= 2:
             itype = IntersectionType.T_JUNCTION
         else:
             itype = IntersectionType.MIDBLOCK

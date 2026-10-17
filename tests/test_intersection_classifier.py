@@ -144,6 +144,7 @@ def test_intersection_classifier_resolves_cross_streets():
     crossed_roads = [ctx.road_crossed for ctx in contexts]
     assert None not in crossed_roads
 
+    assert "SW Donovan Avenue" in crossed_roads
     assert "SW Century Drive" in crossed_roads
     assert "South Safeway commercial driveway" in crossed_roads
     assert "Safeway commercial driveway" in crossed_roads
@@ -151,6 +152,7 @@ def test_intersection_classifier_resolves_cross_streets():
 
     # Check spoken summaries
     summaries = " ".join(ctx.spoken_summary for ctx in contexts)
+    assert "SW Donovan Avenue" in summaries
     assert "SW Century Drive" in summaries
     assert "South Safeway commercial driveway" in summaries
     assert "cross the Safeway commercial driveway" in summaries

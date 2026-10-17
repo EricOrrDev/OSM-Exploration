@@ -98,6 +98,8 @@ BEND_KNOWN_THOROUGHFARES: Dict[str, str] = {
     "TAYLOR": "SW Innovation Way",  # Renamed from SW Taylor Court by Bend City Council Res. 3403
     "TAYLR": "SW Innovation Way",
     "INNOVATION": "SW Innovation Way",
+    "DONOVA": "SW Donovan Avenue",
+    "DONOVAN": "SW Donovan Avenue",
     "14TH": "NW 14th Street",
     "14TH NW": "NW 14th Street",
     "15TH": "SW 15th Street",
@@ -269,7 +271,7 @@ class SemanticRoadClassifier:
                     or base_upper.endswith(" " + prefix)
                 ):
                     # If municipal record explicitly says StreetClass 'A' (Alley/Access) and not a primary street
-                    if is_private_muni and not any(k in upper or k in base_upper for k in ("CENTUR", "SIMPSO", "TAYL", "CHANDL", "COLORA")):
+                    if is_private_muni and not any(k in upper or k in base_upper for k in ("CENTUR", "SIMPSO", "TAYL", "CHANDL", "COLORA", "DONOV")):
                         return DisambiguationResult(
                             crossing_type=SemanticCrossingType.COMMERCIAL_DRIVEWAY,
                             canonical_name=f"{full_st} access",

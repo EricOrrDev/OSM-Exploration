@@ -68,8 +68,8 @@ PRESETS = {
         "fixture": "sample_overpass_pedestrian.json",
     },
     "osu-to-safeway": {
-        "name": "OSU-Cascades to Safeway on Century Drive",
-        "start": (44.0444095, -121.3379453),
+        "name": "OSU-Cascades (Tykeson Hall) to Safeway on Century Drive",
+        "start": (44.0432484, -121.3342388),  # Tykeson Hall, OSU-Cascades
         "end": (44.0470397, -121.3295531),
         "bbox": (44.0410, -121.3410, 44.0490, -121.3260),
         "fixture": "osu_cascades_safeway_pedestrian.json",
