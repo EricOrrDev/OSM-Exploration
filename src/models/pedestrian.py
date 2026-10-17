@@ -1,6 +1,6 @@
 """Pydantic models for pedestrian infrastructure based on OpenSidewalks schema."""
 
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple, Union
 from pydantic import BaseModel, Field
 
 
@@ -45,7 +45,7 @@ class CrosswalkFeature(BaseModel):
 class KerbFeature(BaseModel):
     """Represents a transition between sidewalk and roadway (curb cut / curb ramp)."""
 
-    id: int
+    id: Union[int, str]
     coordinate: Tuple[float, float]
     kerb_type: str = "unknown"          # lowered, flush, raised, rolled
     has_tactile_paving: bool = False
@@ -68,6 +68,7 @@ class SidewalkFeature(BaseModel):
     smoothness: Optional[str] = None    # excellent, good, intermediate, bad
     has_tactile_paving: bool = False
     incline_pct: Optional[float] = None
+    footway: Optional[str] = None
 
 
 class PedestrianNetwork(BaseModel):

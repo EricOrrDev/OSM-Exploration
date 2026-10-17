@@ -183,9 +183,11 @@ class GeoJSONExporter:
                 cross_list = instruction_by_action.get("CROSS_STREET", [])
                 if cross_idx < len(cross_list):
                     inst = cross_list[cross_idx]
-                    cross_idx += 1
+                    next_edge = route.edges[i + 1] if (i + 1 < len(route.edges)) else None
+                    if not next_edge or next_edge.feature_type != "crosswalk":
+                        cross_idx += 1
 
-                road_name = inst.get("spoken_road_name") or inst.get("road_crossed") or (cw.name if cw else "crosswalk")
+                road_name = (inst.get("spoken_road_name") or inst.get("road_crossed")) if inst else (cw.name if cw else "crosswalk")
                 sem_type = inst.get("semantic_crossing_type") if inst else None
                 itype = inst.get("intersection_type") if inst else None
 
@@ -228,7 +230,9 @@ class GeoJSONExporter:
                 sw_list = instruction_by_action.get("WALK_SIDEWALK", [])
                 if sw_idx < len(sw_list):
                     inst = sw_list[sw_idx]
-                    sw_idx += 1
+                    next_edge = route.edges[i + 1] if (i + 1 < len(route.edges)) else None
+                    if not next_edge or next_edge.feature_type != "sidewalk":
+                        sw_idx += 1
 
                 features.append({
                     "type": "Feature",

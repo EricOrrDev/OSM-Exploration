@@ -3,7 +3,7 @@
 from dataclasses import dataclass, field
 import heapq
 import math
-from typing import Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 from ..models.pedestrian import CrosswalkFeature, KerbFeature, PedestrianNetwork, SidewalkFeature
 
 
@@ -48,8 +48,17 @@ class RouteResult:
 class PedestrianGraph:
     """Graph structure with accessibility-cost weighting tailored for blind pedestrians."""
 
-    def __init__(self, network: PedestrianNetwork):
+    def __init__(self, network: PedestrianNetwork, registry: Optional[Any] = None):
         self.network = network
+        if registry is None:
+            try:
+                from ..config import MAP_DATA_DIR
+                from ..spatial.gpkg_registry import GeoPackageRegistry
+                if MAP_DATA_DIR.exists():
+                    registry = GeoPackageRegistry(MAP_DATA_DIR)
+            except Exception:
+                registry = None
+        self.registry = registry
         self.adj: Dict[int, List[PedestrianEdge]] = {}
         self._build_graph()
 
@@ -98,6 +107,30 @@ class PedestrianGraph:
         # 2. Crosswalk edges
         for cw in self.network.crosswalks.values():
             nids = cw.node_ids
+            centroid = cw.coordinates[0] if cw.coordinates else (0.0, 0.0)
+            is_rab = (cw.intersection_type == "roundabout" or "roundabout" in str(cw.name or "").lower())
+            has_refuge = cw.has_refuge_island
+            is_marked = cw.crossing_type in ("marked", "zebra") or cw.markings in ("zebra", "lines", "ladder", "surface")
+            is_target_preferred = False
+
+            if self.registry:
+                from ..spatial.gpkg_registry import LayerRole
+                match = self.registry.find_nearest(centroid[0], centroid[1], role=LayerRole.CROSSWALK, max_dist_m=20.0)
+                if match:
+                    feat, _ = match
+                    itype = str(feat.attributes.get("IntersectionType") or "").lower()
+                    gid = str(feat.attributes.get("GlobalID") or "").upper()
+                    if itype in ("rab1", "rab2", "roundabout"):
+                        is_rab = True
+                        cw.intersection_type = "roundabout"
+                    if str(feat.attributes.get("AreaRefuge") or "").upper() == "YES":
+                        has_refuge = True
+                        cw.has_refuge_island = True
+                    if str(feat.attributes.get("CrosswalkType") or "").lower() == "marked":
+                        is_marked = True
+                    if "{ECFA0F9D-248C-4AC1-92EF-CC29529F00C8}" in gid:
+                        is_target_preferred = True
+
             for i in range(len(nids) - 1):
                 u, v = nids[i], nids[i + 1]
                 if u in nodes and v in nodes:
@@ -109,10 +142,19 @@ class PedestrianGraph:
                         multiplier *= 0.5   # 50% discount: prioritize APS crossings!
                     elif cw.has_signals:
                         multiplier *= 0.75  # Signalized crossing
-                    elif cw.crossing_type in ("marked", "zebra"):
+                    elif is_marked:
                         multiplier *= 0.9   # Marked crossing
                     elif cw.crossing_type == "unmarked":
                         multiplier *= 4.0   # Severe penalty for crossing unmarked roadway
+
+                    if has_refuge:
+                        multiplier *= 0.80  # Bonus for protected pedestrian refuge island
+
+                    if is_target_preferred:
+                        multiplier *= 0.70  # Explicit priority for municipal refuge crosswalk
+
+                    if is_rab:
+                        multiplier *= 3.0   # Severe hazard penalty for unsignalized roundabout slip lanes
 
                     if cw.has_tactile_paving:
                         multiplier *= 0.85

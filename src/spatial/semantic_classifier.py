@@ -96,6 +96,7 @@ BEND_KNOWN_THOROUGHFARES: Dict[str, str] = {
     "GALVES": "NW Galveston Avenue",
     "GALVESTON": "NW Galveston Avenue",
     "TAYLOR": "SW Innovation Way",  # Renamed from SW Taylor Court by Bend City Council Res. 3403
+    "TAYLR": "SW Innovation Way",
     "INNOVATION": "SW Innovation Way",
     "14TH": "NW 14th Street",
     "14TH NW": "NW 14th Street",
@@ -256,11 +257,19 @@ class SemanticRoadClassifier:
                 municipal_street_class and municipal_street_class.upper() in ("A", "PRIVATE")
             )
 
-            # Rule D: Known public thoroughfares
+            # Rule D: Known public thoroughfares (stripping municipal segment digits like CENTUR040 -> CENTUR)
+            base_upper = re.sub(r"\d+$", "", upper).strip()
             for prefix, full_st in BEND_KNOWN_THOROUGHFARES.items():
-                if upper == prefix or upper.startswith(prefix + " ") or upper.endswith(" " + prefix):
+                if (
+                    upper == prefix
+                    or upper.startswith(prefix + " ")
+                    or upper.endswith(" " + prefix)
+                    or base_upper == prefix
+                    or base_upper.startswith(prefix + " ")
+                    or base_upper.endswith(" " + prefix)
+                ):
                     # If municipal record explicitly says StreetClass 'A' (Alley/Access) and not a primary street
-                    if is_private_muni and not ("CENTURY" in upper or "SIMPSON" in upper or "TAYLOR" in upper or "CHANDLER" in upper or "COLORADO" in upper):
+                    if is_private_muni and not any(k in upper or k in base_upper for k in ("CENTUR", "SIMPSO", "TAYL", "CHANDL", "COLORA")):
                         return DisambiguationResult(
                             crossing_type=SemanticCrossingType.COMMERCIAL_DRIVEWAY,
                             canonical_name=f"{full_st} access",

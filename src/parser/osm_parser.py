@@ -33,8 +33,8 @@ class OSMParser:
                 tags = el.get("tags", {})
                 node_tags_map[node_id] = tags
 
-                # Curb nodes
-                if "kerb" in tags or tags.get("highway") == "crossing":
+                # Curb nodes (must have explicit kerb tag or barrier=kerb, not bare highway=crossing)
+                if "kerb" in tags or tags.get("barrier") == "kerb":
                     kerb_type = tags.get("kerb", "unknown")
                     has_tactile = tags.get("tactile_paving") == "yes" or tags.get("kerb:tactile_paving") == "yes"
                     height = self._parse_float(tags.get("kerb:height"))
@@ -124,6 +124,7 @@ class OSMParser:
                 smoothness = tags.get("smoothness")
                 has_tactile = tags.get("tactile_paving") == "yes"
                 incline = self._parse_float(tags.get("incline"))
+                footway = tags.get("footway")
 
                 sidewalks[way_id] = SidewalkFeature(
                     id=way_id,
@@ -135,6 +136,7 @@ class OSMParser:
                     smoothness=smoothness,
                     has_tactile_paving=has_tactile,
                     incline_pct=incline,
+                    footway=footway,
                 )
 
         return PedestrianNetwork(

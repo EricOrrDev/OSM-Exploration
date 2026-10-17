@@ -142,14 +142,28 @@ class IntersectionClassifier:
         # 1. Determine corridor continuity & turning orientation
         turn_dir, is_continuation, corridor_name = self._determine_continuity(route, edge_idx)
 
-        # 2. Resolve cross street via municipal curb ramp matching
+        muni_match = self._match_municipal_crosswalk(cw_mid, max_dist_m=15.0)
         cr_match = self._match_municipal_curb_ramp(cw_mid, max_dist_m=12.0)
         resolved_crossed_street = None
         spoken_road_name = None
         sem_type = SemanticCrossingType.UNKNOWN_CROSSING
         turning_warning = False
 
-        if cr_match:
+        # 2. Check municipal Crosswalk GIS ground truth FIRST for authoritative RoadCrossed
+        if muni_match:
+            raw_road = muni_match.get("road_crossed")
+            if raw_road and raw_road.strip() and raw_road.lower() != "none" and "unknown" not in raw_road.lower():
+                disambig = self.semantic_classifier.classify(
+                    raw_name=raw_road,
+                    crossing_width_m=edge.length_m,
+                )
+                resolved_crossed_street = disambig.canonical_name
+                spoken_road_name = disambig.spoken_road_name
+                sem_type = disambig.crossing_type
+                turning_warning = disambig.turning_vehicle_warning
+
+        # 3. Fallback to municipal curb ramp matching
+        if not resolved_crossed_street and cr_match:
             raw_main = cr_match.get("main")
             raw_cross = cr_match.get("cross")
             owner = cr_match.get("owner")
@@ -176,9 +190,6 @@ class IntersectionClassifier:
                 sem_type = disambig.crossing_type
                 turning_warning = disambig.turning_vehicle_warning
 
-        # 3. Match municipal Crosswalk GIS ground truth
-        muni_match = self._match_municipal_crosswalk(cw_mid, max_dist_m=15.0)
-
         if muni_match:
             raw_type = (muni_match.get("intersection_type") or "").lower()
             if raw_type in ("rab1", "rab2", "roundabout"):
@@ -191,19 +202,6 @@ class IntersectionClassifier:
                 itype = IntersectionType.MIDBLOCK
             else:
                 itype = IntersectionType.UNKNOWN
-
-            # Fallback to RoadCrossed from Crosswalk table if curb ramp did not supply it
-            if not resolved_crossed_street:
-                raw_road = muni_match.get("road_crossed")
-                if raw_road:
-                    disambig = self.semantic_classifier.classify(
-                        raw_name=raw_road,
-                        crossing_width_m=edge.length_m,
-                    )
-                    resolved_crossed_street = disambig.canonical_name
-                    spoken_road_name = disambig.spoken_road_name
-                    sem_type = disambig.crossing_type
-                    turning_warning = disambig.turning_vehicle_warning
 
             lanes = muni_match.get("lanes")
             has_refuge = (muni_match.get("refuge") == "YES") or (cw.has_refuge_island if cw else False)
