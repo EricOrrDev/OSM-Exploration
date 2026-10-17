@@ -104,8 +104,8 @@ def test_intersection_classifier_geometric_fallback():
 def test_normalize_street_name():
     from src.routing.intersection_classifier import normalize_street_name
 
-    assert normalize_street_name("S SAFEWAY DR") == "South Safeway Drive"
-    assert normalize_street_name("SAFEWAY DRIVE") == "Safeway Drive"
+    assert normalize_street_name("S SAFEWAY DR") == "South Safeway commercial driveway"
+    assert normalize_street_name("SAFEWAY DRIVE") == "Safeway commercial driveway"
     assert normalize_street_name("TAYLOR") == "SW Taylor Drive"
     assert normalize_street_name("SIMPSON") == "SW Simpson Avenue"
     assert normalize_street_name("CENTURY") == "SW Century Drive"
@@ -137,11 +137,13 @@ def test_intersection_classifier_resolves_cross_streets():
     assert None not in crossed_roads
 
     assert "SW Taylor Drive" in crossed_roads
-    assert "South Safeway Drive" in crossed_roads
-    assert "Safeway Drive" in crossed_roads
+    assert "South Safeway commercial driveway" in crossed_roads
+    assert "Safeway commercial driveway" in crossed_roads
+    assert "Safeway Drive" not in crossed_roads
 
     # Check spoken summaries
     summaries = " ".join(ctx.spoken_summary for ctx in contexts)
     assert "Cross SW Taylor Drive" in summaries
-    assert "across South Safeway Drive" in summaries
-    assert "cross Safeway Drive" in summaries
+    assert "South Safeway commercial driveway" in summaries
+    assert "cross the Safeway commercial driveway" in summaries
+    assert "cross Safeway Drive" not in summaries

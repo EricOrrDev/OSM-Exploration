@@ -61,8 +61,13 @@ class AudioGuidanceGenerator:
                 if u_kerb:
                     curb_desc = "lowered curb ramp" if u_kerb.is_step_free else "vertical raised curb drop-off"
                     tactile_desc = "with tactile truncated domes" if u_kerb.has_tactile_paving else "without tactile warning"
-                    cross_target = f" to cross {ctx.road_crossed}" if (ctx and ctx.road_crossed) else ""
+                    target_name = (ctx.spoken_road_name or ctx.road_crossed) if ctx else None
+                    cross_target = f" to cross {target_name}" if target_name else ""
                     curb_speech = f"Approach curb edge{cross_target}: Step down {curb_desc} {tactile_desc}."
+
+                    # Inject turning vehicle caution for commercial driveways & parking entrances
+                    if ctx and ctx.turning_vehicle_warning:
+                        curb_speech += " Be alert for turning customer vehicles entering or exiting the parking lot."
 
                     # Inject button cue if detected
                     if btn_cue.has_button and btn_cue.instruction_text:
@@ -76,6 +81,9 @@ class AudioGuidanceGenerator:
                         "button_cue": btn_cue.instruction_text if btn_cue.has_button else None,
                         "relative_button_direction": btn_cue.relative_direction,
                         "road_crossed": ctx.road_crossed if ctx else None,
+                        "spoken_road_name": ctx.spoken_road_name if ctx else None,
+                        "semantic_crossing_type": ctx.semantic_crossing_type.value if ctx else None,
+                        "turning_vehicle_warning": ctx.turning_vehicle_warning if ctx else False,
                     })
                     step_num += 1
 
@@ -107,6 +115,8 @@ class AudioGuidanceGenerator:
                     "intersection_type": ctx.intersection_type.value,
                     "is_continuation": ctx.is_corridor_continuation,
                     "road_crossed": ctx.road_crossed,
+                    "spoken_road_name": ctx.spoken_road_name if ctx else None,
+                    "semantic_crossing_type": ctx.semantic_crossing_type.value if ctx else None,
                     "corridor_street": ctx.corridor_street,
                 })
                 step_num += 1
@@ -115,7 +125,8 @@ class AudioGuidanceGenerator:
                 if v_kerb:
                     exit_curb = "lowered curb ramp" if v_kerb.is_step_free else "raised curb"
                     exit_tactile = " onto tactile paving" if v_kerb.has_tactile_paving else ""
-                    exit_target = f" to complete crossing {ctx.road_crossed}" if (ctx and ctx.road_crossed) else " to exit roadway"
+                    target_name = (ctx.spoken_road_name or ctx.road_crossed) if ctx else None
+                    exit_target = f" to complete crossing {target_name}" if target_name else " to exit roadway"
                     exit_speech = f"Step up {exit_curb}{exit_tactile}{exit_target}."
                     instructions.append({
                         "step": step_num,
@@ -123,6 +134,8 @@ class AudioGuidanceGenerator:
                         "spoken_instruction": exit_speech,
                         "tactile_cue": v_kerb.has_tactile_paving,
                         "road_crossed": ctx.road_crossed if ctx else None,
+                        "spoken_road_name": ctx.spoken_road_name if ctx else None,
+                        "semantic_crossing_type": ctx.semantic_crossing_type.value if ctx else None,
                     })
                     step_num += 1
 

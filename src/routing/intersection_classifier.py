@@ -1,16 +1,20 @@
-"""Intersection topology classification and corridor continuity engine."""
+"""Intersection topology classification, semantic corridor continuity, and municipal conflation engine."""
 
 from dataclasses import dataclass
 from enum import Enum
 import math
 from pathlib import Path
-import sqlite3
-import struct
 from typing import Any, Dict, List, Optional, Tuple
 
 from ..config import MAP_DATA_DIR
 from ..models.pedestrian import CrosswalkFeature, PedestrianNetwork
-from .pedestrian_graph import RouteResult, haversine_distance_m
+from ..spatial.gpkg_registry import GeoPackageRegistry, LayerRole, haversine_distance_m, mercator_to_wgs84
+from ..spatial.semantic_classifier import (
+    DisambiguationResult,
+    SemanticCrossingType,
+    SemanticRoadClassifier,
+)
+from .pedestrian_graph import RouteResult
 
 
 class IntersectionType(str, Enum):
@@ -26,6 +30,9 @@ class IntersectionType(str, Enum):
 class IntersectionContext:
     intersection_type: IntersectionType
     road_crossed: Optional[str] = None
+    spoken_road_name: Optional[str] = None
+    semantic_crossing_type: SemanticCrossingType = SemanticCrossingType.UNKNOWN_CROSSING
+    turning_vehicle_warning: bool = False
     corridor_street: Optional[str] = None
     is_corridor_continuation: bool = True
     turn_direction: str = "straight"  # "straight", "left", "right"
@@ -33,37 +40,6 @@ class IntersectionContext:
     lanes_crossed: Optional[int] = None
     classification_source: str = "osm_topology"  # "municipal_gis" or "osm_topology"
     spoken_summary: str = ""
-
-
-# Common City of Bend engineering road prefix mappings
-BEND_ROAD_NAMES: Dict[str, str] = {
-    "CENTUR": "SW Century Drive",
-    "SIMPSO": "SW Simpson Avenue",
-    "CHANDL": "SW Chandler Avenue",
-    "COLORA": "SW Colorado Avenue",
-    "DAVENO": "NW Davenport Avenue",
-    "COLLEG": "SW College Way",
-    "MTWASH": "NW Mount Washington Drive",
-    "REEDMK": "SE Reed Market Road",
-    "SHIELD": "SW Shevlin Hixon Drive",
-    "EMPIRE": "NW Empire Avenue",
-    "PORTLA": "NW Portland Avenue",
-    "NEWPOR": "NW Newport Avenue",
-    "GREENW": "NE Greenwood Avenue",
-    "BEARCR": "SE Bear Creek Road",
-    "BOND": "NW Bond Street",
-    "WALL": "NW Wall Street",
-    "GALVES": "NW Galveston Avenue",
-    "TAYLOR": "SW Taylor Drive",
-    "PRIVATE": "private driveway",
-}
-
-
-def mercator_to_wgs84(x: float, y: float) -> Tuple[float, float]:
-    """Convert EPSG:3857 Web Mercator coordinate to EPSG:4326 (lat, lon)."""
-    lon = x * 180.0 / 20037508.34
-    lat = math.atan(math.sinh(y * math.pi / 20037508.34)) * 180.0 / math.pi
-    return lat, lon
 
 
 def calculate_bearing(p1: Tuple[float, float], p2: Tuple[float, float]) -> float:
@@ -83,77 +59,15 @@ def normalize_angle_diff(angle1: float, angle2: float) -> float:
 
 
 def normalize_street_name(raw: Optional[str]) -> Optional[str]:
-    """Convert raw municipal GIS street abbreviation into spoken title name."""
+    """Convert raw municipal GIS street abbreviation into disambiguated canonical title name."""
     if not raw:
         return None
     cleaned = raw.strip()
     if not cleaned or cleaned.lower() == "none" or "unknown" in cleaned.lower():
         return None
-
-    upper = cleaned.upper()
-
-    # Exact known mappings
-    special_cases: Dict[str, str] = {
-        "CENTURY": "SW Century Drive",
-        "TAYLOR": "SW Taylor Drive",
-        "SIMPSON": "SW Simpson Avenue",
-        "CHANDLER": "SW Chandler Avenue",
-        "COLORADO": "SW Colorado Avenue",
-        "DAVENPORT": "NW Davenport Avenue",
-        "COLLEGE": "SW College Way",
-        "MT WASHINGTON": "NW Mount Washington Drive",
-        "REED MARKET": "SE Reed Market Road",
-        "S SAFEWAY DR": "South Safeway Drive",
-        "SAFEWAY DRIVE": "Safeway Drive",
-        "SAFEWAY": "Safeway Access Drive",
-        "PRIVATE": "private driveway",
-        "14TH": "NW 14th Street",
-        "14TH NW": "NW 14th Street",
-        "FIRE STATION S SIDE": "Fire Station South Driveway",
-        "FIRE STATION N SIDE": "Fire Station North Driveway",
-    }
-    if upper in special_cases:
-        return special_cases[upper]
-
-    for prefix, full in BEND_ROAD_NAMES.items():
-        if upper == prefix or upper.startswith(prefix):
-            return full
-
-    # Common abbreviation word replacements
-    words = cleaned.split()
-    expanded_words = []
-    for w in words:
-        w_up = w.upper()
-        if w_up == "DR":
-            expanded_words.append("Drive")
-        elif w_up in ("ST", "STR"):
-            expanded_words.append("Street")
-        elif w_up in ("AVE", "AV"):
-            expanded_words.append("Avenue")
-        elif w_up in ("RD",):
-            expanded_words.append("Road")
-        elif w_up in ("BLVD",):
-            expanded_words.append("Boulevard")
-        elif w_up in ("LN",):
-            expanded_words.append("Lane")
-        elif w_up in ("CT",):
-            expanded_words.append("Court")
-        elif w_up in ("WY", "WAY"):
-            expanded_words.append("Way")
-        elif w_up == "S":
-            expanded_words.append("South")
-        elif w_up == "N":
-            expanded_words.append("North")
-        elif w_up == "E":
-            expanded_words.append("East")
-        elif w_up == "W":
-            expanded_words.append("West")
-        elif w_up in ("SW", "NW", "SE", "NE"):
-            expanded_words.append(w_up)
-        else:
-            expanded_words.append(w.capitalize())
-
-    return " ".join(expanded_words)
+    clf = SemanticRoadClassifier()
+    res = clf.classify(cleaned)
+    return res.canonical_name
 
 
 class IntersectionClassifier:
@@ -164,92 +78,54 @@ class IntersectionClassifier:
         network: PedestrianNetwork,
         map_data_dir: Optional[Path] = None,
         enable_municipal: bool = True,
+        registry: Optional[GeoPackageRegistry] = None,
+        semantic_classifier: Optional[SemanticRoadClassifier] = None,
     ):
         self.network = network
         self.map_data_dir = map_data_dir or MAP_DATA_DIR
         self.enable_municipal = enable_municipal
+        self.semantic_classifier = semantic_classifier or SemanticRoadClassifier()
+        self.registry: Optional[GeoPackageRegistry] = None
+
         self._municipal_crosswalks: List[Dict[str, Any]] = []
         self._municipal_curb_ramps: List[Dict[str, Any]] = []
 
         if self.enable_municipal:
+            self.registry = registry or GeoPackageRegistry(self.map_data_dir)
             self._load_municipal_data()
 
     def _load_municipal_data(self) -> None:
-        """Parse municipal Crosswalk and Curb_Ramps GeoPackages to index geometries and cross streets."""
-        if not self.map_data_dir.exists():
+        """Populate internal crosswalk and curb ramp caches from GeoPackageRegistry."""
+        if not self.registry:
             return
 
-        # 1. Crosswalks
-        cw_files = list(self.map_data_dir.glob("Crosswalks_*.gpkg"))
-        if cw_files:
-            try:
-                conn = sqlite3.connect(str(cw_files[0]))
-                c = conn.cursor()
-                c.execute(
-                    "SELECT OBJECTID, SHAPE, IntersectionType, RoadCrossed, LanesCrossed, AreaRefuge, Signalized "
-                    "FROM Crosswalk"
-                )
-                for row in c.fetchall():
-                    obj_id, geom_blob, itype, road, lanes, refuge, sig = row
-                    if not geom_blob or len(geom_blob) < 18:
-                        continue
-                    wkb = geom_blob[8:]
-                    byte_order = "<" if wkb[0] == 1 else ">"
-                    wkb_type = struct.unpack(f"{byte_order}I", wkb[1:5])[0]
-                    if wkb_type == 5:  # MultiLineString
-                        num_points = struct.unpack(f"{byte_order}I", wkb[14:18])[0]
-                        coords = []
-                        offset = 18
-                        for _ in range(num_points):
-                            px, py = struct.unpack(f"{byte_order}dd", wkb[offset : offset + 16])
-                            coords.append(mercator_to_wgs84(px, py))
-                            offset += 16
-                        if coords:
-                            mid_lat = sum(p[0] for p in coords) / len(coords)
-                            mid_lon = sum(p[1] for p in coords) / len(coords)
-                            self._municipal_crosswalks.append({
-                                "id": obj_id,
-                                "intersection_type": itype,
-                                "road_crossed": road,
-                                "lanes": lanes,
-                                "refuge": refuge,
-                                "signalized": sig,
-                                "coord": (mid_lat, mid_lon),
-                            })
-                conn.close()
-            except Exception:
-                self._municipal_crosswalks = []
+        self._municipal_crosswalks = [
+            {
+                "id": f.feature_id,
+                "intersection_type": f.attributes.get("IntersectionType"),
+                "road_crossed": f.attributes.get("RoadCrossed"),
+                "lanes": f.attributes.get("LanesCrossed"),
+                "refuge": f.attributes.get("AreaRefuge"),
+                "signalized": f.attributes.get("Signalized"),
+                "coord": f.centroid,
+            }
+            for f in self.registry.features.values()
+            if f.layer_role == LayerRole.CROSSWALK
+        ]
 
-        # 2. Curb Ramps (with Mainstreet and Crosstreet)
-        cr_files = list(self.map_data_dir.glob("sCurbRamps_*.gpkg"))
-        if cr_files:
-            try:
-                conn = sqlite3.connect(str(cr_files[0]))
-                c = conn.cursor()
-                c.execute(
-                    "SELECT OBJECTID, SHAPE, LocationDescription, Mainstreet, Crosstreet "
-                    "FROM Curb_Ramps WHERE Mainstreet IS NOT NULL"
-                )
-                for row in c.fetchall():
-                    obj_id, geom_blob, loc, main_st, cross_st = row
-                    if not geom_blob or len(geom_blob) < 18:
-                        continue
-                    wkb = geom_blob[8:]
-                    byte_order = "<" if wkb[0] == 1 else ">"
-                    wkb_type = struct.unpack(f"{byte_order}I", wkb[1:5])[0]
-                    if wkb_type == 1:  # Point
-                        px, py = struct.unpack(f"{byte_order}dd", wkb[5:21])
-                        lat, lon = mercator_to_wgs84(px, py)
-                        self._municipal_curb_ramps.append({
-                            "id": obj_id,
-                            "location": loc,
-                            "main": main_st,
-                            "cross": cross_st,
-                            "coord": (lat, lon),
-                        })
-                conn.close()
-            except Exception:
-                self._municipal_curb_ramps = []
+        self._municipal_curb_ramps = [
+            {
+                "id": f.feature_id,
+                "location": f.attributes.get("LocationDescription"),
+                "main": f.attributes.get("Mainstreet"),
+                "cross": f.attributes.get("Crosstreet"),
+                "owner": f.attributes.get("Owner"),
+                "street_class": f.attributes.get("StreetClass"),
+                "coord": f.centroid,
+            }
+            for f in self.registry.features.values()
+            if f.layer_role == LayerRole.CURB_RAMP and (f.attributes.get("Mainstreet") is not None or f.attributes.get("Crosstreet") is not None)
+        ]
 
     def classify_intersection(self, route: RouteResult, edge_idx: int) -> IntersectionContext:
         """Classify the intersection for the crosswalk edge at edge_idx along the route."""
@@ -269,18 +145,36 @@ class IntersectionClassifier:
         # 2. Resolve cross street via municipal curb ramp matching
         cr_match = self._match_municipal_curb_ramp(cw_mid, max_dist_m=12.0)
         resolved_crossed_street = None
+        spoken_road_name = None
+        sem_type = SemanticCrossingType.UNKNOWN_CROSSING
+        turning_warning = False
 
         if cr_match:
-            main_norm = normalize_street_name(cr_match["main"])
-            cross_norm = normalize_street_name(cr_match["cross"])
+            raw_main = cr_match.get("main")
+            raw_cross = cr_match.get("cross")
+            owner = cr_match.get("owner")
+            street_class = cr_match.get("street_class")
 
-            # If walking along main street, the street being crossed is cross street
-            if corridor_name and main_norm and ("Century" in corridor_name or main_norm in corridor_name):
-                resolved_crossed_street = cross_norm
-            elif corridor_name and cross_norm and cross_norm in corridor_name:
-                resolved_crossed_street = main_norm
+            # Determine whether main or cross is the feature being crossed
+            target_raw = None
+            if corridor_name and raw_main and ("Century" in corridor_name or raw_main.upper() in corridor_name.upper()):
+                target_raw = raw_cross
+            elif corridor_name and raw_cross and (raw_cross.upper() in corridor_name.upper()):
+                target_raw = raw_main
             else:
-                resolved_crossed_street = cross_norm or main_norm
+                target_raw = raw_cross or raw_main
+
+            if target_raw:
+                disambig = self.semantic_classifier.classify(
+                    raw_name=target_raw,
+                    municipal_owner=owner,
+                    municipal_street_class=street_class,
+                    crossing_width_m=edge.length_m,
+                )
+                resolved_crossed_street = disambig.canonical_name
+                spoken_road_name = disambig.spoken_road_name
+                sem_type = disambig.crossing_type
+                turning_warning = disambig.turning_vehicle_warning
 
         # 3. Match municipal Crosswalk GIS ground truth
         muni_match = self._match_municipal_crosswalk(cw_mid, max_dist_m=15.0)
@@ -301,7 +195,15 @@ class IntersectionClassifier:
             # Fallback to RoadCrossed from Crosswalk table if curb ramp did not supply it
             if not resolved_crossed_street:
                 raw_road = muni_match.get("road_crossed")
-                resolved_crossed_street = normalize_street_name(raw_road)
+                if raw_road:
+                    disambig = self.semantic_classifier.classify(
+                        raw_name=raw_road,
+                        crossing_width_m=edge.length_m,
+                    )
+                    resolved_crossed_street = disambig.canonical_name
+                    spoken_road_name = disambig.spoken_road_name
+                    sem_type = disambig.crossing_type
+                    turning_warning = disambig.turning_vehicle_warning
 
             lanes = muni_match.get("lanes")
             has_refuge = (muni_match.get("refuge") == "YES") or (cw.has_refuge_island if cw else False)
@@ -309,6 +211,9 @@ class IntersectionClassifier:
             context = IntersectionContext(
                 intersection_type=itype,
                 road_crossed=resolved_crossed_street,
+                spoken_road_name=spoken_road_name,
+                semantic_crossing_type=sem_type,
+                turning_vehicle_warning=turning_warning,
                 corridor_street=corridor_name,
                 is_corridor_continuation=is_continuation,
                 turn_direction=turn_dir,
@@ -321,6 +226,16 @@ class IntersectionClassifier:
             context = self._classify_geometric_topology(
                 route, edge_idx, cw_mid, turn_dir, is_continuation, corridor_name, resolved_crossed_street
             )
+            tags = cw.tags if (cw and hasattr(cw, "tags")) else {}
+            disambig = self.semantic_classifier.classify(
+                raw_name=context.road_crossed,
+                osm_tags=tags,
+                crossing_width_m=edge.length_m,
+            )
+            context.road_crossed = disambig.canonical_name
+            context.spoken_road_name = disambig.spoken_road_name
+            context.semantic_crossing_type = disambig.crossing_type
+            context.turning_vehicle_warning = disambig.turning_vehicle_warning
 
         # 5. Generate spoken summary
         context.spoken_summary = self._generate_spoken_summary(context)
@@ -405,6 +320,22 @@ class IntersectionClassifier:
         max_dist_m: float = 15.0,
     ) -> Optional[Dict[str, Any]]:
         """Find the closest municipal crosswalk within max_dist_m."""
+        if self.registry:
+            hits = self.registry.query_radius(coord[0], coord[1], radius_m=max_dist_m, role=LayerRole.CROSSWALK)
+            if hits:
+                feat, dist = hits[0]
+                return {
+                    "id": feat.feature_id,
+                    "intersection_type": feat.attributes.get("IntersectionType"),
+                    "road_crossed": feat.attributes.get("RoadCrossed"),
+                    "lanes": feat.attributes.get("LanesCrossed"),
+                    "refuge": feat.attributes.get("AreaRefuge"),
+                    "signalized": feat.attributes.get("Signalized"),
+                    "coord": feat.centroid,
+                    "dist": dist,
+                }
+            return None
+
         closest = None
         min_dist = float("inf")
         for mcw in self._municipal_crosswalks:
@@ -420,6 +351,24 @@ class IntersectionClassifier:
         max_dist_m: float = 12.0,
     ) -> Optional[Dict[str, Any]]:
         """Find the closest municipal curb ramp within max_dist_m."""
+        if self.registry:
+            hits = self.registry.query_radius(coord[0], coord[1], radius_m=max_dist_m, role=LayerRole.CURB_RAMP)
+            for feat, dist in hits:
+                main_st = feat.attributes.get("Mainstreet")
+                cross_st = feat.attributes.get("Crosstreet")
+                if main_st or cross_st:
+                    return {
+                        "id": feat.feature_id,
+                        "location": feat.attributes.get("LocationDescription"),
+                        "main": main_st,
+                        "cross": cross_st,
+                        "owner": feat.attributes.get("Owner"),
+                        "street_class": feat.attributes.get("StreetClass"),
+                        "coord": feat.centroid,
+                        "dist": dist,
+                    }
+            return None
+
         closest = None
         min_dist = float("inf")
         for cr in self._municipal_curb_ramps:
@@ -449,12 +398,23 @@ class IntersectionClassifier:
         if cw and (cw.has_refuge_island or "roundabout" in str(cw.name or "").lower()):
             is_roundabout = True
 
-        for nid, tags in self.network.node_tags.items():
-            if nid in nodes:
-                if haversine_distance_m(mid_coord, nodes[nid]) <= 25.0:
-                    if tags.get("junction") == "roundabout" or tags.get("junction") == "circular":
-                        is_roundabout = True
-                        break
+        # Check for circular pathway cluster around midpoint
+        if not is_roundabout:
+            nearby_sw_headings = []
+            for sw in self.network.sidewalks.values():
+                for sw_u, sw_v in zip(sw.node_ids[:-1], sw.node_ids[1:]):
+                    p1 = nodes.get(sw_u)
+                    p2 = nodes.get(sw_v)
+                    if p1 and p2:
+                        sw_mid = ((p1[0] + p2[0]) / 2.0, (p1[1] + p2[1]) / 2.0)
+                        if haversine_distance_m(mid_coord, sw_mid) <= 35.0:
+                            nearby_sw_headings.append(calculate_bearing(p1, p2))
+
+            if len(nearby_sw_headings) >= 5:
+                bins = [int(h // 45) for h in nearby_sw_headings]
+                unique_bins = len(set(bins))
+                if unique_bins >= 5:
+                    is_roundabout = True
 
         if is_roundabout:
             return IntersectionContext(
@@ -463,8 +423,8 @@ class IntersectionClassifier:
                 corridor_street=corridor_name,
                 is_corridor_continuation=is_continuation,
                 turn_direction=turn_dir,
-                has_refuge_island=cw.has_refuge_island if cw else False,
-                lanes_crossed=2,
+                has_refuge_island=True,
+                lanes_crossed=None,
                 classification_source="osm_topology",
             )
 
@@ -495,7 +455,20 @@ class IntersectionClassifier:
     def _generate_spoken_summary(self, ctx: IntersectionContext) -> str:
         """Create screen-reader guidance phrasing customized for the intersection and crossed street."""
         street = ctx.corridor_street or "the street"
-        road_name = ctx.road_crossed or "the street"
+        road_name = ctx.spoken_road_name or ctx.road_crossed or "the street"
+
+        # Commercial driveways & parking lot entrances
+        if ctx.semantic_crossing_type in (SemanticCrossingType.COMMERCIAL_DRIVEWAY, SemanticCrossingType.PARKING_LOT_ACCESS):
+            if ctx.intersection_type == IntersectionType.T_JUNCTION:
+                return f"At this T-junction, cross {road_name} to continue along {street}."
+            else:
+                return f"Continue forward across {road_name} to stay on {street}."
+
+        if ctx.semantic_crossing_type == SemanticCrossingType.PRIVATE_DRIVEWAY:
+            return f"Continue forward across {road_name} to stay on {street}."
+
+        if ctx.semantic_crossing_type == SemanticCrossingType.SERVICE_ALLEY:
+            return f"Continue forward across {road_name} to stay on {street}."
 
         if ctx.intersection_type == IntersectionType.ROUNDABOUT:
             refuge_cue = (

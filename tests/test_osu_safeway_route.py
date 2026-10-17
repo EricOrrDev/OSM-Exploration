@@ -106,12 +106,15 @@ def test_osu_safeway_intersection_and_continuity_guidance():
 
     # 4. Explicit cross-street naming to ground user on map
     assert "SW Taylor Drive" in spoken_text
-    assert "South Safeway Drive" in spoken_text
-    assert "Safeway Drive" in spoken_text
+    assert "South Safeway commercial driveway" in spoken_text
+    assert "Safeway commercial driveway" in spoken_text
+    assert "Safeway Drive" not in spoken_text
 
-    # 5. Curb approach steps announce the upcoming street to be crossed
+    # 5. Curb approach steps announce the upcoming street/driveway to be crossed with caution
     curb_steps = [inst for inst in instructions if inst["action"] == "APPROACH_CURB"]
     curb_text = " ".join(inst["spoken_instruction"] for inst in curb_steps)
     assert "to cross" in curb_text
-    assert "SW Taylor Drive" in curb_text or "South Safeway Drive" in curb_text or "Safeway Drive" in curb_text
+    assert "SW Taylor Drive" in curb_text
+    assert "the Safeway commercial driveway" in curb_text or "the South Safeway commercial driveway" in curb_text
+    assert "Be alert for turning customer vehicles entering or exiting the parking lot" in curb_text
 
