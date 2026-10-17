@@ -55,7 +55,7 @@ def test_public_street_canonicalization():
 
     res_taylor = clf.classify("TAYLOR")
     assert res_taylor.crossing_type == SemanticCrossingType.PUBLIC_STREET
-    assert res_taylor.canonical_name == "SW Taylor Drive"
+    assert res_taylor.canonical_name == "SW Innovation Way"
 
     res_simp = clf.classify("SIMPSON")
     assert res_simp.crossing_type == SemanticCrossingType.PUBLIC_STREET

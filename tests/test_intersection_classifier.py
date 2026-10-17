@@ -106,7 +106,7 @@ def test_normalize_street_name():
 
     assert normalize_street_name("S SAFEWAY DR") == "South Safeway commercial driveway"
     assert normalize_street_name("SAFEWAY DRIVE") == "Safeway commercial driveway"
-    assert normalize_street_name("TAYLOR") == "SW Taylor Drive"
+    assert normalize_street_name("TAYLOR") == "SW Innovation Way"
     assert normalize_street_name("SIMPSON") == "SW Simpson Avenue"
     assert normalize_street_name("CENTURY") == "SW Century Drive"
     assert normalize_street_name("14TH") == "NW 14th Street"
@@ -136,14 +136,14 @@ def test_intersection_classifier_resolves_cross_streets():
     crossed_roads = [ctx.road_crossed for ctx in contexts]
     assert None not in crossed_roads
 
-    assert "SW Taylor Drive" in crossed_roads
+    assert "SW Innovation Way" in crossed_roads
     assert "South Safeway commercial driveway" in crossed_roads
     assert "Safeway commercial driveway" in crossed_roads
     assert "Safeway Drive" not in crossed_roads
 
     # Check spoken summaries
     summaries = " ".join(ctx.spoken_summary for ctx in contexts)
-    assert "Cross SW Taylor Drive" in summaries
+    assert "Cross SW Innovation Way" in summaries
     assert "South Safeway commercial driveway" in summaries
     assert "cross the Safeway commercial driveway" in summaries
     assert "cross Safeway Drive" not in summaries

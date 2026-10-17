@@ -95,7 +95,8 @@ BEND_KNOWN_THOROUGHFARES: Dict[str, str] = {
     "WALL": "NW Wall Street",
     "GALVES": "NW Galveston Avenue",
     "GALVESTON": "NW Galveston Avenue",
-    "TAYLOR": "SW Taylor Drive",
+    "TAYLOR": "SW Innovation Way",  # Renamed from SW Taylor Court by Bend City Council Res. 3403
+    "INNOVATION": "SW Innovation Way",
     "14TH": "NW 14th Street",
     "14TH NW": "NW 14th Street",
     "15TH": "SW 15th Street",
