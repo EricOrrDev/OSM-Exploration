@@ -221,3 +221,7 @@ __marimo__/
 
 # Generated route outputs (HTML maps, GeoJSON, GeoPackage containing sensitive API keys)
 output/
+
+# On-device cached raster basemap tiles
+cache/tiles/
+

@@ -551,6 +551,19 @@ class GeoJSONExporter:
 
         key_param = f"?key={carto_api_key.strip()}" if carto_api_key and carto_api_key.strip() else ""
 
+        # Check for on-device cached CARTO basemap tiles
+        try:
+            from ..clients.carto_tile_cache import CartoTileCache
+            tile_cache = CartoTileCache(api_key=carto_api_key)
+            local_tile_template = tile_cache.get_local_url_template(relative_to=out_path.parent)
+            stats = tile_cache.get_tile_stats(style="voyager")
+            has_local_cache = stats["tile_count"] > 0
+        except Exception:
+            local_tile_template = "../cache/tiles/voyager/{z}/{x}/{y}.png"
+            has_local_cache = False
+
+        default_tile_script = "onDeviceTiles.addTo(map);" if has_local_cache else "cartoVoyager.addTo(map);"
+
         geojson_dict = GeoJSONExporter.export_route_to_geojson(route, network, instructions)
         geojson_str = json.dumps(geojson_dict)
 
@@ -697,7 +710,14 @@ class GeoJSONExporter:
   <script>
     var map = L.map('map').setView([{start_pt[0]}, {start_pt[1]}], 16);
 
-    // Multi-source basemap tiles with open access policies that support local file:// viewing without 403 errors
+    // 1. On-device cached raster tiles for offline field demonstrations
+    var onDeviceTiles = L.tileLayer('{local_tile_template}', {{
+      attribution: '&copy; <a href="https://carto.com/attributions">CARTO</a> (On-Device Cache)',
+      maxZoom: 19,
+      errorTileUrl: 'https://basemaps.cartocdn.com/rastertiles/voyager/{{z}}/{{x}}/{{y}}{{r}}.png{key_param}'
+    }});
+
+    // 2. Multi-source basemap tiles with open access policies that support local file:// viewing without 403 errors
     var cartoVoyager = L.tileLayer('https://basemaps.cartocdn.com/rastertiles/voyager/{{z}}/{{x}}/{{y}}{{r}}.png{key_param}', {{
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
       maxZoom: 20
@@ -723,10 +743,11 @@ class GeoJSONExporter:
       maxZoom: 19
     }});
 
-    // Default to CartoDB Voyager (clean street geometry and labels)
-    cartoVoyager.addTo(map);
+    // Prefer on-device cached tiles when available; fallback to CartoDB Voyager
+    {default_tile_script}
 
     var baseMaps = {{
+      "📱 On-Device Cache (Offline)": onDeviceTiles,
       "🗺️ Streets (Voyager)": cartoVoyager,
       "🌙 Dark Mode": cartoDark,
       "☀️ Positron (Light)": cartoPositron,

@@ -5,6 +5,7 @@ import heapq
 import math
 from typing import Any, Dict, List, Optional, Tuple
 from ..models.pedestrian import CrosswalkFeature, KerbFeature, PedestrianNetwork, SidewalkFeature
+from .safety_weights import DEFAULT_SAFETY_WEIGHTS, SafetyWeightsConfig
 
 
 def haversine_distance_m(p1: Tuple[float, float], p2: Tuple[float, float]) -> float:
@@ -48,8 +49,14 @@ class RouteResult:
 class PedestrianGraph:
     """Graph structure with accessibility-cost weighting tailored for blind pedestrians."""
 
-    def __init__(self, network: PedestrianNetwork, registry: Optional[Any] = None):
+    def __init__(
+        self,
+        network: PedestrianNetwork,
+        registry: Optional[Any] = None,
+        weights: Optional[SafetyWeightsConfig] = None,
+    ):
         self.network = network
+        self.weights = weights or DEFAULT_SAFETY_WEIGHTS
         if registry is None:
             try:
                 from ..config import MAP_DATA_DIR
@@ -94,11 +101,10 @@ class PedestrianGraph:
                 u, v = nids[i], nids[i + 1]
                 if u in nodes and v in nodes:
                     dist = max(0.5, haversine_distance_m(nodes[u], nodes[v]))
-                    multiplier = 1.0
-                    if sw.has_tactile_paving:
-                        multiplier *= 0.85
-                    if sw.surface in ("unpaved", "dirt", "gravel"):
-                        multiplier *= 2.0
+                    multiplier = self.weights.compute_sidewalk_multiplier(
+                        has_tactile_paving=sw.has_tactile_paving,
+                        surface=sw.surface,
+                    )
                     weight = dist * multiplier
                     # Bidirectional
                     self._add_edge(u, v, dist, weight, "sidewalk", sw=sw)
@@ -135,39 +141,18 @@ class PedestrianGraph:
                 u, v = nids[i], nids[i + 1]
                 if u in nodes and v in nodes:
                     dist = max(1.0, haversine_distance_m(nodes[u], nodes[v]))
-                    multiplier = 1.0
-
-                    # Reward accessible infrastructure
-                    if cw.has_audible_signals:
-                        multiplier *= 0.5   # 50% discount: prioritize APS crossings!
-                    elif cw.has_signals:
-                        multiplier *= 0.75  # Signalized crossing
-                    elif is_marked:
-                        multiplier *= 0.9   # Marked crossing
-                    elif cw.crossing_type == "unmarked":
-                        multiplier *= 4.0   # Severe penalty for crossing unmarked roadway
-
-                    if has_refuge:
-                        multiplier *= 0.80  # Bonus for protected pedestrian refuge island
-
-                    if is_target_preferred:
-                        multiplier *= 0.70  # Explicit priority for municipal refuge crosswalk
-
-                    if is_rab:
-                        multiplier *= 3.0   # Severe hazard penalty for unsignalized roundabout slip lanes
-
-                    if cw.has_tactile_paving:
-                        multiplier *= 0.85
-
-                    # Check curb ramps at transition nodes
-                    for nid in (u, v):
-                        if nid in kerbs:
-                            k = kerbs[nid]
-                            if k.kerb_type == "raised":
-                                multiplier *= 2.0  # Vertical curb drop penalty
-                            elif k.has_tactile_paving:
-                                multiplier *= 0.9
-
+                    kerb_list = [kerbs[nid] for nid in (u, v) if nid in kerbs]
+                    multiplier = self.weights.compute_crosswalk_multiplier(
+                        has_audible_signals=cw.has_audible_signals,
+                        has_signals=cw.has_signals,
+                        is_marked=is_marked,
+                        crossing_type=cw.crossing_type,
+                        has_refuge_island=has_refuge,
+                        is_target_preferred=is_target_preferred,
+                        is_roundabout=is_rab,
+                        has_tactile_paving=cw.has_tactile_paving,
+                        kerb_features=kerb_list,
+                    )
                     weight = dist * multiplier
                     # Bidirectional
                     self._add_edge(u, v, dist, weight, "crosswalk", cw=cw)
@@ -302,14 +287,8 @@ class PedestrianGraph:
         total_dist = sum(e.length_m for e in path_edges)
         total_effective = sum(e.effective_weight for e in path_edges)
 
-        # Rate accessibility: ratio of effective cost to actual distance
-        ratio = (total_effective / total_dist) if total_dist > 0 else 1.0
-        if ratio <= 0.8:
-            rating = "High Safety (APS and tactile paving throughout)"
-        elif ratio <= 1.2:
-            rating = "Moderate Safety (Standard marked sidewalks)"
-        else:
-            rating = "Caution Required (Unmarked crossings or obstacles present)"
+        # Rate accessibility using centralized safety weights
+        rating = self.weights.compute_accessibility_rating(total_effective, total_dist)
 
         return RouteResult(
             node_path=node_path,

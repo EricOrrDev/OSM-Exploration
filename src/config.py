@@ -58,6 +58,16 @@ DEFAULT_END: Tuple[float, float] = (44.05710, -121.30220)    # Node 8
 BEND_CITY_BBOX: Tuple[float, float, float, float] = (44.0000, -121.3660, 44.1200, -121.2400)
 BEND_CITY_CACHE_FILE = CACHE_DIR / "bend_citywide_pedestrian.json"
 
+# West Yellowstone, Montana official bounding box (south, west, north, east)
+WEST_YELLOWSTONE_BBOX: Tuple[float, float, float, float] = (44.6540, -111.1150, 44.6730, -111.0970)
+
+# Project Prototyping Areas (Bend, OR & West Yellowstone, MT)
+PROTOTYPE_AREAS: Dict[str, Tuple[float, float, float, float]] = {
+    "bend-corridor": (44.0410, -121.3410, 44.0490, -121.3260),
+    "bend-city": BEND_CITY_BBOX,
+    "west-yellowstone": WEST_YELLOWSTONE_BBOX,
+}
+
 # Named routing presets for accessibility evaluation
 PRESETS = {
     "default": {
@@ -74,4 +84,24 @@ PRESETS = {
         "bbox": (44.0410, -121.3410, 44.0490, -121.3260),
         "fixture": "osu_cascades_safeway_pedestrian.json",
     },
+    "west-yellowstone": {
+        "name": "West Yellowstone Town Center to Historic Center",
+        "start": (44.6625, -111.1040),
+        "end": (44.6635, -111.0980),
+        "bbox": WEST_YELLOWSTONE_BBOX,
+        "fixture": "west_yellowstone_pedestrian.json",
+    },
 }
+
+# =============================================================================
+# Pedestrian Accessibility & Routing Safety Weights (Single Source of Truth)
+# =============================================================================
+from .routing.safety_weights import (
+    DEFAULT_SAFETY_WEIGHTS,
+    CrosswalkMultipliers,
+    KerbMultipliers,
+    RatingThresholds,
+    SafetyScoreWeights,
+    SafetyWeightsConfig,
+    SidewalkMultipliers,
+)

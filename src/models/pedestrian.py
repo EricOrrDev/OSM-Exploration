@@ -26,20 +26,15 @@ class CrosswalkFeature(BaseModel):
     @property
     def safety_score(self) -> float:
         """Heuristic score (0.0 to 1.0) assessing crossing safety for blind pedestrians."""
-        score = 0.2  # Base score for any mapped crossing
-        if self.crossing_type in ("traffic_signals", "marked", "zebra"):
-            score += 0.2
-        if self.has_signals:
-            score += 0.2
-        if self.has_audible_signals:
-            score += 0.2  # Huge safety asset for blind pedestrians
-        if self.has_tactile_paving:
-            score += 0.1
-        if self.has_refuge_island:
-            score += 0.1
-        if self.crossing_type == "unmarked":
-            score -= 0.3  # Heavy penalty for unmarked crossing
-        return max(0.0, min(1.0, score))
+        from ..routing.safety_weights import DEFAULT_SAFETY_WEIGHTS
+
+        return DEFAULT_SAFETY_WEIGHTS.compute_crosswalk_safety_score(
+            crossing_type=self.crossing_type,
+            has_signals=self.has_signals,
+            has_audible_signals=self.has_audible_signals,
+            has_tactile_paving=self.has_tactile_paving,
+            has_refuge_island=self.has_refuge_island,
+        )
 
 
 class KerbFeature(BaseModel):

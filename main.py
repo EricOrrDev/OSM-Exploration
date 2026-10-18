@@ -17,9 +17,11 @@ from src.config import (
     DEFAULT_END,
     DEFAULT_START,
     PRESETS,
+    PROTOTYPE_AREAS,
 )
 from src.clients.overpass_client import OverpassClient
 from src.clients.nominatim_client import NominatimClient
+from src.clients.carto_tile_cache import CartoTileCache
 from src.parser.osm_parser import OSMParser
 from src.routing.pedestrian_graph import PedestrianGraph
 from src.routing.guidance import AudioGuidanceGenerator
@@ -136,6 +138,13 @@ def run_route(args: argparse.Namespace) -> None:
     GeoJSONExporter.export_route_to_gpkg(route, network, instructions, Path(gpkg_path))
     title = f"Pedestrian Route: {preset['name']}" if preset_name else "Accessible Pedestrian Route"
     carto_key = getattr(args, "carto_key", None) or CARTO_API_KEY
+
+    if getattr(args, "cache_tiles", False):
+        print("\nCaching corridor raster basemap tiles locally on-device...")
+        tile_cache = CartoTileCache(api_key=carto_key)
+        tile_stats = tile_cache.cache_bbox(bbox=bbox, min_zoom=14, max_zoom=17)
+        print(f"  [On-Device Cache] {tile_stats['newly_downloaded']} new, {tile_stats['already_cached']} cached ({tile_stats['total_bytes']/1024:.1f} KB)")
+
     GeoJSONExporter.export_route_to_html(route, network, instructions, Path(html_path), title=title, carto_api_key=carto_key)
 
     auth_label = "Authenticated via CARTO_API_KEY" if carto_key else "Open Access Mode"
@@ -214,6 +223,59 @@ def run_geocode(args: argparse.Namespace) -> None:
         print(f"     Coordinates: ({r.get('lat')}, {r.get('lon')}) | Type: {r.get('type')}")
 
 
+def run_cache_tiles(args: argparse.Namespace) -> None:
+    """Pre-fetch and cache CARTO raster basemap tiles locally on-device."""
+    print("=" * 75)
+    print("CARTO BASEMAP ON-DEVICE TILE CACHING ENGINE")
+    print("=" * 75)
+
+    if getattr(args, "area", None) and args.area in PROTOTYPE_AREAS:
+        bbox = PROTOTYPE_AREAS[args.area]
+        area_name = args.area
+    elif getattr(args, "preset", None) and args.preset in PRESETS:
+        bbox = PRESETS[args.preset]["bbox"]
+        area_name = f"preset: {args.preset}"
+    elif getattr(args, "bbox", None):
+        bbox = tuple(args.bbox)
+        area_name = "custom bounding box"
+    else:
+        # Default to Bend Corridor
+        bbox = PROTOTYPE_AREAS["bend-corridor"]
+        area_name = "bend-corridor (default)"
+
+    carto_key = getattr(args, "carto_key", None) or CARTO_API_KEY
+    tile_cache = CartoTileCache(api_key=carto_key)
+
+    print(f"Target Area:      {area_name}")
+    print(f"Bounding Box:     {bbox}")
+    print(f"Zoom Levels:      {args.min_zoom} to {args.max_zoom}")
+    print(f"Map Style:        {args.style}")
+    print(f"Storage Dir:      {tile_cache.cache_dir / args.style}")
+    auth_label = "Authenticated via CARTO_API_KEY" if tile_cache.api_key else "Open Access Mode"
+    print(f"API Mode:         {auth_label}")
+
+    print("\nDownloading and caching tiles...")
+    def on_progress(current: int, total: int, status: str) -> None:
+        if current % 10 == 0 or current == total:
+            print(f"  [{current}/{total}] tiles processed ({status})")
+
+    stats = tile_cache.cache_bbox(
+        bbox=bbox,
+        min_zoom=args.min_zoom,
+        max_zoom=args.max_zoom,
+        style=args.style,
+        force_refresh=getattr(args, "force", False),
+        progress_callback=on_progress,
+    )
+
+    print(f"\n[Tile Caching Complete]")
+    print(f"  Total In-Scope:    {stats['total_tiles']} tiles")
+    print(f"  Newly Downloaded:  {stats['newly_downloaded']} tiles")
+    print(f"  Already Cached:    {stats['already_cached']} tiles")
+    print(f"  Failed / Skipped:  {stats['failed_tiles']} tiles")
+    print(f"  Storage Footprint: {stats['total_bytes'] / 1024:.1f} KB (~{stats['total_bytes'] / (1024*1024):.2f} MB)")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(
         description="OpenStreetMap Pedestrian Accessibility & Navigation Engine"
@@ -242,6 +304,18 @@ def main() -> None:
     route_p.add_argument("--export-gpkg", type=str, default=None, help="Path to export calculated route as OGC GeoPackage SQLite (.gpkg)")
     route_p.add_argument("--export-html", type=str, default=None, help="Path to export interactive web map (.html)")
     route_p.add_argument("--carto-key", type=str, default=None, help="CARTO API key for basemap tiles (overrides CARTO_API_KEY in .env)")
+    route_p.add_argument("--cache-tiles", action="store_true", help="Automatically cache corridor basemap tiles locally for offline use")
+
+    # Cache Tiles
+    cache_p = subparsers.add_parser("cache-tiles", help="Pre-download and store CARTO tiles on device")
+    cache_p.add_argument("--area", type=str, choices=list(PROTOTYPE_AREAS.keys()), default=None, help="Target prototyping area")
+    cache_p.add_argument("--preset", type=str, choices=list(PRESETS.keys()), default=None, help="Corridor preset to cache")
+    cache_p.add_argument("--bbox", type=float, nargs=4, metavar=("SOUTH", "WEST", "NORTH", "EAST"), default=None)
+    cache_p.add_argument("--min-zoom", type=int, default=14, help="Minimum slippy tile zoom level (default: 14)")
+    cache_p.add_argument("--max-zoom", type=int, default=17, help="Maximum slippy tile zoom level (default: 17)")
+    cache_p.add_argument("--style", type=str, default="voyager", help="CARTO raster style (voyager, dark, positron)")
+    cache_p.add_argument("--force", action="store_true", help="Force re-downloading even if cached")
+    cache_p.add_argument("--carto-key", type=str, default=None, help="CARTO API key")
 
     # Coverage
     cov_p = subparsers.add_parser("coverage", help="Benchmark OSM tag completeness against municipal GIS")
@@ -262,6 +336,8 @@ def main() -> None:
         run_fetch(args)
     elif args.command == "route":
         run_route(args)
+    elif args.command == "cache-tiles":
+        run_cache_tiles(args)
     elif args.command == "coverage":
         run_coverage(args)
     elif args.command == "export-geojson":
