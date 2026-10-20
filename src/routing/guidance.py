@@ -1,9 +1,11 @@
+import re
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 from ..models.pedestrian import PedestrianNetwork
 from .button_detector import ButtonDetector
 from .intersection_classifier import IntersectionClassifier
-from .pedestrian_graph import RouteResult
+from .pedestrian_graph import RouteResult, calculate_bearing, normalize_angle_diff
+from .safety_weights import DEFAULT_SAFETY_WEIGHTS, SafetyWeightsConfig
 
 
 class AudioGuidanceGenerator:
@@ -15,57 +17,37 @@ class AudioGuidanceGenerator:
         classifier: Optional[IntersectionClassifier] = None,
         button_detector: Optional[ButtonDetector] = None,
         map_data_dir: Optional[Path] = None,
+        weights: Optional[SafetyWeightsConfig] = None,
     ):
         self.network = network
         self.classifier = classifier or IntersectionClassifier(network, map_data_dir=map_data_dir)
         self.button_detector = button_detector or ButtonDetector(network)
+        self.weights = weights or DEFAULT_SAFETY_WEIGHTS
 
     def generate_instructions(self, route: RouteResult) -> List[Dict[str, Any]]:
         """Generate auditory instructions for each segment and transition along the route."""
         instructions: List[Dict[str, Any]] = []
         kerbs = self.network.kerbs
+        edges = route.edges
+        n = len(edges)
+        nodes = self.network.raw_nodes
+
+        # Pre-calculate compass bearings for each edge
+        bearings: List[float] = []
+        for e in edges:
+            p1 = nodes.get(e.u, (0.0, 0.0))
+            p2 = nodes.get(e.v, (0.0, 0.0))
+            bearings.append(calculate_bearing(p1, p2))
 
         step_num = 1
-        for i, edge in enumerate(route.edges):
-            u_kerb = kerbs.get(edge.u)
-            v_kerb = kerbs.get(edge.v)
+        i = 0
+        while i < n:
+            edge = edges[i]
 
-            if edge.feature_type == "sidewalk":
-                sw = edge.sidewalk
-                is_traffic_island = sw and (sw.footway == "traffic_island" or getattr(sw, "footway", None) == "traffic_island")
-                if is_traffic_island:
-                    speech = (
-                        f"Wait on center median pedestrian refuge island ({edge.length_m:.0f} meters). "
-                        "Listen and verify traffic is clear before crossing the next lane."
-                    )
-                    instructions.append({
-                        "step": step_num,
-                        "action": "WALK_SIDEWALK",
-                        "distance_m": edge.length_m,
-                        "spoken_instruction": speech,
-                        "tactile_cue": sw.has_tactile_paving if sw else False,
-                        "is_refuge_island": True,
-                    })
-                    step_num += 1
-                else:
-                    name = sw.name if (sw and sw.name) else "sidewalk"
-                    surface = f"{sw.surface} " if (sw and sw.surface) else ""
-                    width = f"({sw.width_m}m wide) " if (sw and sw.width_m) else ""
-                    tactile = "with tactile guidance " if (sw and sw.has_tactile_paving) else ""
-
-                    speech = (
-                        f"Follow {surface}{name} {width}{tactile}for {edge.length_m:.0f} meters."
-                    )
-                    instructions.append({
-                        "step": step_num,
-                        "action": "WALK_SIDEWALK",
-                        "distance_m": edge.length_m,
-                        "spoken_instruction": speech,
-                        "tactile_cue": sw.has_tactile_paving if sw else False,
-                    })
-                    step_num += 1
-
-            elif edge.feature_type == "crosswalk":
+            # -------------------------------------------------------------
+            # 1. Crosswalk feature handling
+            # -------------------------------------------------------------
+            if edge.feature_type == "crosswalk":
                 cw = edge.crosswalk
                 cw_name = cw.name if (cw and cw.name) else "street crossing"
 
@@ -73,19 +55,20 @@ class AudioGuidanceGenerator:
                 ctx = self.classifier.classify_intersection(route, i)
                 btn_cue = self.button_detector.detect_button_cue(route, i)
 
-                prev_edge = route.edges[i - 1] if i > 0 else None
-                next_edge = route.edges[i + 1] if (i + 1 < len(route.edges)) else None
+                prev_edge = edges[i - 1] if i > 0 else None
+                next_edge = edges[i + 1] if (i + 1 < n) else None
 
                 # Only emit entry curb at transition into crosswalk (not between consecutive crosswalk segments)
                 is_crossing_entry = (prev_edge is None or prev_edge.feature_type != "crosswalk")
                 is_crossing_exit = (next_edge is None or next_edge.feature_type != "crosswalk")
 
                 # Resolve entry kerb
+                u_kerb = kerbs.get(edge.u)
                 entry_kerb = u_kerb
-                if is_crossing_entry and not entry_kerb and self.classifier.registry and edge.u in self.network.raw_nodes:
+                if is_crossing_entry and not entry_kerb and self.classifier.registry and edge.u in nodes:
                     from ..spatial.gpkg_registry import LayerRole
                     from ..models.pedestrian import KerbFeature
-                    u_coord = self.network.raw_nodes[edge.u]
+                    u_coord = nodes[edge.u]
                     match = self.classifier.registry.find_nearest(u_coord[0], u_coord[1], role=LayerRole.CURB_RAMP, max_dist_m=12.0)
                     if match:
                         f, _ = match
@@ -99,7 +82,7 @@ class AudioGuidanceGenerator:
                         )
                 elif is_crossing_entry and not entry_kerb:
                     from ..models.pedestrian import KerbFeature
-                    u_coord = self.network.raw_nodes.get(edge.u, (0.0, 0.0))
+                    u_coord = nodes.get(edge.u, (0.0, 0.0))
                     entry_kerb = KerbFeature(
                         id=-1,
                         coordinate=u_coord,
@@ -107,7 +90,7 @@ class AudioGuidanceGenerator:
                         has_tactile_paving=False,
                     )
 
-                # 1. Curb entry instruction
+                # Curb entry instruction
                 if is_crossing_entry and entry_kerb:
                     curb_desc = "lowered curb ramp" if entry_kerb.is_step_free else "vertical raised curb drop-off"
                     tactile_desc = "with tactile truncated domes" if entry_kerb.has_tactile_paving else "without tactile warning"
@@ -137,7 +120,7 @@ class AudioGuidanceGenerator:
                     })
                     step_num += 1
 
-                # 2. Street crossing instruction
+                # Street crossing instruction
                 markings = f" ({cw.markings} pattern)" if cw.markings else ""
                 aps_info = ""
                 if cw.has_audible_signals:
@@ -172,11 +155,12 @@ class AudioGuidanceGenerator:
                 step_num += 1
 
                 # Resolve exit kerb
+                v_kerb = kerbs.get(edge.v)
                 exit_kerb = v_kerb
-                if is_crossing_exit and not exit_kerb and self.classifier.registry and edge.v in self.network.raw_nodes:
+                if is_crossing_exit and not exit_kerb and self.classifier.registry and edge.v in nodes:
                     from ..spatial.gpkg_registry import LayerRole
                     from ..models.pedestrian import KerbFeature
-                    v_coord = self.network.raw_nodes[edge.v]
+                    v_coord = nodes[edge.v]
                     match = self.classifier.registry.find_nearest(v_coord[0], v_coord[1], role=LayerRole.CURB_RAMP, max_dist_m=12.0)
                     if match:
                         f, _ = match
@@ -190,7 +174,7 @@ class AudioGuidanceGenerator:
                         )
                 elif is_crossing_exit and not exit_kerb:
                     from ..models.pedestrian import KerbFeature
-                    v_coord = self.network.raw_nodes.get(edge.v, (0.0, 0.0))
+                    v_coord = nodes.get(edge.v, (0.0, 0.0))
                     exit_kerb = KerbFeature(
                         id=-1,
                         coordinate=v_coord,
@@ -198,7 +182,7 @@ class AudioGuidanceGenerator:
                         has_tactile_paving=False,
                     )
 
-                # 3. Curb exit instruction
+                # Curb exit instruction
                 if is_crossing_exit and exit_kerb:
                     exit_curb = "lowered curb ramp" if exit_kerb.is_step_free else "raised curb"
                     exit_tactile = " onto tactile paving" if exit_kerb.has_tactile_paving else ""
@@ -216,6 +200,136 @@ class AudioGuidanceGenerator:
                     })
                     step_num += 1
 
+                i += 1
+                continue
+
+            # -------------------------------------------------------------
+            # 2. Sidewalk refuge island handling
+            # -------------------------------------------------------------
+            sw = edge.sidewalk
+            is_traffic_island = sw and (sw.footway == "traffic_island" or getattr(sw, "footway", None) == "traffic_island")
+            if is_traffic_island:
+                speech = (
+                    f"Wait on center median pedestrian refuge island ({edge.length_m:.0f} meters). "
+                    "Listen and verify traffic is clear before crossing the next lane."
+                )
+                instructions.append({
+                    "step": step_num,
+                    "action": "WALK_SIDEWALK",
+                    "distance_m": edge.length_m,
+                    "spoken_instruction": speech,
+                    "tactile_cue": sw.has_tactile_paving if sw else False,
+                    "is_refuge_island": True,
+                })
+                step_num += 1
+                i += 1
+                continue
+
+            # -------------------------------------------------------------
+            # 3. Sidewalk run: Turn & Arc Detection
+            # -------------------------------------------------------------
+            turn_cfg = self.weights.turn
+            if i == 0:
+                turn_diff = 0.0
+            else:
+                turn_diff = normalize_angle_diff(bearings[i - 1], bearings[i])
+
+            # Check if edge i starts a curving arc (2+ short consecutive edges turning same direction)
+            arc_edges: List[int] = []
+            if edge.length_m <= turn_cfg.arc_max_edge_length_m and abs(turn_diff) >= 10.0:
+                arc_sign = 1 if turn_diff > 0 else -1
+                cand_edges = [i]
+                cum_angle = turn_diff
+                j = i + 1
+                while j < n and edges[j].feature_type == "sidewalk":
+                    next_sw = edges[j].sidewalk
+                    if next_sw and getattr(next_sw, "footway", None) == "traffic_island":
+                        break
+                    if edges[j].length_m > turn_cfg.arc_max_edge_length_m:
+                        break
+                    d = normalize_angle_diff(bearings[j - 1], bearings[j])
+                    if (d * arc_sign > 0 and abs(d) >= 10.0) or (abs(d) < 10.0 and len(cand_edges) > 1):
+                        cand_edges.append(j)
+                        cum_angle += d
+                        j += 1
+                    else:
+                        break
+                if len(cand_edges) >= 2 and abs(cum_angle) >= turn_cfg.arc_min_cumulative_deg:
+                    arc_edges = cand_edges
+
+            if arc_edges:
+                arc_dist = sum(edges[k].length_m for k in arc_edges)
+                if arc_edges[0] > 0:
+                    arc_cum_angle = normalize_angle_diff(bearings[arc_edges[0] - 1], bearings[arc_edges[-1]])
+                else:
+                    arc_cum_angle = normalize_angle_diff(bearings[0], bearings[arc_edges[-1]])
+
+                q_angle = self.weights.quantize_turn_angle(arc_cum_angle)
+                dir_str = "right" if arc_cum_angle > 0 else "left"
+                speech = f"Follow the curving sidewalk to the {dir_str} for {arc_dist:.0f} meters."
+                has_tactile = any(edges[k].sidewalk and edges[k].sidewalk.has_tactile_paving for k in arc_edges)
+
+                instructions.append({
+                    "step": step_num,
+                    "action": "WALK_SIDEWALK",
+                    "distance_m": round(arc_dist, 1),
+                    "spoken_instruction": speech,
+                    "tactile_cue": has_tactile,
+                    "is_curve": True,
+                    "turn_direction": dir_str,
+                    "turn_angle_deg": q_angle,
+                })
+                step_num += 1
+                i = arc_edges[-1] + 1
+                continue
+
+            # Discrete turn or straight sidewalk walk
+            is_discrete_turn = abs(turn_diff) >= turn_cfg.min_turn_angle_deg
+            q_turn = self.weights.quantize_turn_angle(turn_diff) if is_discrete_turn else 0
+            turn_dir = ("right" if turn_diff > 0 else "left") if is_discrete_turn else None
+
+            # Accumulate straight sidewalk distance
+            straight_dist = edge.length_m
+            has_tactile = sw.has_tactile_paving if sw else False
+            name = sw.name if (sw and sw.name) else "sidewalk"
+            surface = f"{sw.surface} " if (sw and sw.surface) else ""
+            width = f"({sw.width_m}m wide) " if (sw and sw.width_m) else ""
+            tactile = "with tactile guidance " if has_tactile else ""
+
+            j = i + 1
+            while j < n and edges[j].feature_type == "sidewalk":
+                next_sw = edges[j].sidewalk
+                if next_sw and getattr(next_sw, "footway", None) == "traffic_island":
+                    break
+                d = normalize_angle_diff(bearings[j - 1], bearings[j])
+                if abs(d) >= turn_cfg.min_turn_angle_deg:
+                    break
+                straight_dist += edges[j].length_m
+                has_tactile = has_tactile or (next_sw and next_sw.has_tactile_paving)
+                j += 1
+
+            if is_discrete_turn:
+                speech = f"Turn {q_turn} degrees {turn_dir}, then follow {surface}{name} {width}{tactile}for {straight_dist:.0f} meters."
+            else:
+                speech = f"Follow {surface}{name} {width}{tactile}for {straight_dist:.0f} meters."
+
+            speech = re.sub(r"\s+", " ", speech).strip()
+
+            inst_dict: Dict[str, Any] = {
+                "step": step_num,
+                "action": "WALK_SIDEWALK",
+                "distance_m": round(straight_dist, 1),
+                "spoken_instruction": speech,
+                "tactile_cue": has_tactile,
+            }
+            if is_discrete_turn:
+                inst_dict["turn_direction"] = turn_dir
+                inst_dict["turn_angle_deg"] = q_turn
+
+            instructions.append(inst_dict)
+            step_num += 1
+            i = j
+
         instructions.append({
             "step": step_num,
             "action": "ARRIVE",
@@ -225,33 +339,44 @@ class AudioGuidanceGenerator:
         return self._consolidate_instructions(instructions)
 
     def _consolidate_instructions(self, raw_instructions: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-        """Combine consecutive sidewalk and crosswalk steps into single clean announcements."""
-        import re
+        """Combine consecutive straight sidewalk and crosswalk steps into single clean announcements."""
         consolidated: List[Dict[str, Any]] = []
 
         i = 0
         while i < len(raw_instructions):
             curr = raw_instructions[i]
 
-            # 1. Consolidate consecutive WALK_SIDEWALK actions (skipping refuge islands)
-            if curr["action"] == "WALK_SIDEWALK" and not curr.get("is_refuge_island"):
+            # 1. Consolidate consecutive straight WALK_SIDEWALK actions
+            # (skip refuge islands, curving arcs, and steps that start with a discrete turn)
+            is_plain_straight_walk = (
+                curr["action"] == "WALK_SIDEWALK"
+                and not curr.get("is_refuge_island")
+                and not curr.get("is_curve")
+                and not curr.get("turn_direction")
+            )
+
+            if is_plain_straight_walk:
                 total_dist = curr.get("distance_m", 0.0)
                 tactile = curr.get("tactile_cue", False)
                 base_speech = curr["spoken_instruction"]
 
-                # Extract descriptor (everything before 'for X meters')
-                if " for " in base_speech:
-                    descriptor = base_speech.split(" for ")[0]
-                else:
-                    descriptor = "Follow sidewalk"
+                descriptor = base_speech.split(" for ")[0] if " for " in base_speech else "Follow sidewalk"
 
                 j = i + 1
-                while j < len(raw_instructions) and raw_instructions[j]["action"] == "WALK_SIDEWALK" and not raw_instructions[j].get("is_refuge_island"):
+                while j < len(raw_instructions):
                     next_inst = raw_instructions[j]
+                    next_is_plain = (
+                        next_inst["action"] == "WALK_SIDEWALK"
+                        and not next_inst.get("is_refuge_island")
+                        and not next_inst.get("is_curve")
+                        and not next_inst.get("turn_direction")
+                    )
+                    if not next_is_plain:
+                        break
+
                     next_speech = next_inst["spoken_instruction"]
                     next_desc = next_speech.split(" for ")[0] if " for " in next_speech else "Follow sidewalk"
 
-                    # If descriptors match, accumulate distance
                     if descriptor == next_desc:
                         total_dist += next_inst.get("distance_m", 0.0)
                         tactile = tactile or next_inst.get("tactile_cue", False)
@@ -289,7 +414,6 @@ class AudioGuidanceGenerator:
                 curr_copy["step"] = len(consolidated) + 1
                 curr_copy["distance_m"] = round(total_dist, 1)
 
-                # Update the spoken instruction's meter count
                 speech = curr["spoken_instruction"]
                 speech = re.sub(r"\(\d+\s*meters", f"({total_dist:.0f} meters", speech)
                 curr_copy["spoken_instruction"] = speech

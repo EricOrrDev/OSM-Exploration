@@ -14,7 +14,7 @@ from ..spatial.semantic_classifier import (
     SemanticCrossingType,
     SemanticRoadClassifier,
 )
-from .pedestrian_graph import RouteResult
+from .pedestrian_graph import RouteResult, calculate_bearing, normalize_angle_diff
 
 
 class IntersectionType(str, Enum):

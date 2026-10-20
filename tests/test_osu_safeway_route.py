@@ -185,3 +185,48 @@ def test_roundabout_guidance_when_roundabout_traversed():
     assert "Roundabout intersection" in spoken
     assert "Free-flowing traffic enters continuously from your left" in spoken
 
+
+def test_osu_safeway_turns_and_arcs():
+    """Verify turn detection, 15° quantization, and arc batching along the OSU to Safeway route."""
+    preset = PRESETS["osu-to-safeway"]
+    client = OverpassClient(mock_mode=True)
+    raw = client.fetch_pedestrian_data(preset["bbox"], fixture_name=preset["fixture"])
+
+    parser = OSMParser()
+    network = parser.parse(raw)
+    graph = PedestrianGraph(network)
+
+    start_node = graph.find_nearest_node(preset["start"])
+    end_node = graph.find_nearest_node(preset["end"])
+    route = graph.route(start_node, end_node)
+
+    guidance_gen = AudioGuidanceGenerator(network)
+    instructions = guidance_gen.generate_instructions(route)
+    spoken_list = [inst["spoken_instruction"] for inst in instructions]
+
+    # 1. Straight path out of Tykeson Hall
+    assert "Follow sidewalk for 164 meters." in spoken_list[0]
+
+    # 2. Discrete 60° left turn after campus path
+    turn_60_left = [inst for inst in instructions if inst.get("turn_direction") == "left" and inst.get("turn_angle_deg") == 60]
+    assert len(turn_60_left) >= 1
+    assert "Turn 60 degrees left" in turn_60_left[0]["spoken_instruction"]
+
+    # 3. Batched arc curving to the right (the 2 consecutive campus right bends)
+    curve_steps = [inst for inst in instructions if inst.get("is_curve")]
+    assert len(curve_steps) >= 2  # Campus arc and Safeway entrance arc
+    assert any("Follow the curving sidewalk to the right for 14 meters." in c["spoken_instruction"] for c in curve_steps)
+
+    # 4. Turn 90° left to cross Donovan Ave
+    turn_90_left = [inst for inst in instructions if inst.get("turn_direction") == "left" and inst.get("turn_angle_deg") == 90]
+    assert len(turn_90_left) >= 1
+    assert any("Turn 90 degrees left" in inst["spoken_instruction"] for inst in turn_90_left)
+
+    # 5. Entrance arc curving right into Safeway approach
+    assert any("Follow the curving sidewalk to the right for 19 meters." in c["spoken_instruction"] for c in curve_steps)
+
+    # 6. Final arrival
+    assert instructions[-1]["action"] == "ARRIVE"
+    assert "You have arrived at your destination." in instructions[-1]["spoken_instruction"]
+
+

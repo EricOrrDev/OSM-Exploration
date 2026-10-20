@@ -26,6 +26,22 @@ def haversine_distance_m(p1: Tuple[float, float], p2: Tuple[float, float]) -> fl
     return R * c
 
 
+def calculate_bearing(p1: Tuple[float, float], p2: Tuple[float, float]) -> float:
+    """Calculate compass bearing from p1 to p2 in degrees [0, 360)."""
+    lat1, lon1 = math.radians(p1[0]), math.radians(p1[1])
+    lat2, lon2 = math.radians(p2[0]), math.radians(p2[1])
+    dlon = lon2 - lon1
+    y = math.sin(dlon) * math.cos(lat2)
+    x = math.cos(lat1) * math.sin(lat2) - math.sin(lat1) * math.cos(lat2) * math.cos(dlon)
+    return (math.degrees(math.atan2(y, x)) + 360.0) % 360.0
+
+
+def normalize_angle_diff(angle1: float, angle2: float) -> float:
+    """Returns angular difference (angle2 - angle1) in range [-180, 180]."""
+    diff = (angle2 - angle1 + 180.0) % 360.0 - 180.0
+    return diff
+
+
 @dataclass
 class PedestrianEdge:
     u: int
@@ -247,40 +263,73 @@ class PedestrianGraph:
         if start_node not in self.adj or end_node not in self.network.raw_nodes:
             return None
 
-        distances: Dict[int, float] = {start_node: 0.0}
-        previous_edges: Dict[int, PedestrianEdge] = {}
-        heap: List[Tuple[float, int]] = [(0.0, start_node)]
+        if start_node == end_node:
+            rating = self.weights.compute_accessibility_rating(0.0, 0.0)
+            return RouteResult(
+                node_path=[start_node],
+                edges=[],
+                total_distance_m=0.0,
+                total_effective_cost=0.0,
+                accessibility_rating=rating,
+            )
+
+        # State in Dijkstra: (cost, current_node, previous_node)
+        # previous_node tracks incoming trajectory for directional turn penalty
+        distances: Dict[Tuple[int, Optional[int]], float] = {(start_node, None): 0.0}
+        previous_edges: Dict[Tuple[int, Optional[int]], Tuple[Tuple[int, Optional[int]], PedestrianEdge]] = {}
+        heap: List[Tuple[float, int, Optional[int]]] = [(0.0, start_node, None)]
         visited = set()
 
+        turn_cfg = self.weights.turn
+        apply_turn_penalties = turn_cfg.turn_penalty_enabled and turn_cfg.base_turn_penalty > 0
+        nodes = self.network.raw_nodes
+
+        best_end_state: Optional[Tuple[int, Optional[int]]] = None
+
         while heap:
-            cur_dist, u = heapq.heappop(heap)
-            if u in visited:
+            cur_dist, u, p = heapq.heappop(heap)
+            state = (u, p)
+            if state in visited:
                 continue
-            visited.add(u)
+            visited.add(state)
 
             if u == end_node:
+                best_end_state = state
                 break
 
             for edge in self.adj.get(u, []):
                 v = edge.v
-                if v in visited:
+                next_state = (v, u)
+                if next_state in visited:
                     continue
-                new_cost = cur_dist + edge.effective_weight
-                if new_cost < distances.get(v, float("inf")):
-                    distances[v] = new_cost
-                    previous_edges[v] = edge
-                    heapq.heappush(heap, (new_cost, v))
+                if v == p:
+                    # Prevent direct 180° backtracking on the same physical segment
+                    continue
 
-        if end_node not in previous_edges and start_node != end_node:
+                turn_cost = 0.0
+                if apply_turn_penalties and p is not None and p in nodes and u in nodes and v in nodes:
+                    b_in = calculate_bearing(nodes[p], nodes[u])
+                    b_out = calculate_bearing(nodes[u], nodes[v])
+                    angle_diff = abs(normalize_angle_diff(b_in, b_out))
+                    if angle_diff >= turn_cfg.min_turn_angle_deg:
+                        turn_cost = turn_cfg.base_turn_penalty * (angle_diff / 90.0)
+
+                new_cost = cur_dist + edge.effective_weight + turn_cost
+                if new_cost < distances.get(next_state, float("inf")):
+                    distances[next_state] = new_cost
+                    previous_edges[next_state] = (state, edge)
+                    heapq.heappush(heap, (new_cost, v, u))
+
+        if best_end_state is None:
             return None
 
         # Reconstruct path
         path_edges: List[PedestrianEdge] = []
-        curr = end_node
-        while curr != start_node:
-            edge = previous_edges[curr]
+        curr = best_end_state
+        while curr[0] != start_node:
+            prev_state, edge = previous_edges[curr]
             path_edges.append(edge)
-            curr = edge.u
+            curr = prev_state
         path_edges.reverse()
 
         node_path = [start_node] + [e.v for e in path_edges]

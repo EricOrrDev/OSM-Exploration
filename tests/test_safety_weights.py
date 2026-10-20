@@ -11,6 +11,7 @@ from src.routing.safety_weights import (
     SafetyScoreWeights,
     SafetyWeightsConfig,
     SidewalkMultipliers,
+    TurnPenaltyConfig,
 )
 
 
@@ -143,3 +144,38 @@ def test_custom_safety_weights_injection():
 
     assert edge_custom.effective_weight < edge_default.effective_weight
     assert pytest.approx(edge_custom.effective_weight / edge_default.effective_weight, 0.01) == 0.50 / 0.85
+
+
+def test_turn_penalty_config_defaults():
+    """Verify default turn penalty configuration values."""
+    w = DEFAULT_SAFETY_WEIGHTS
+    assert w.turn.turn_penalty_enabled is True
+    assert w.turn.base_turn_penalty == 1.0
+    assert w.turn.min_turn_angle_deg == 20.0
+    assert w.turn.turn_angle_resolution_deg == 15
+    assert w.turn.arc_max_edge_length_m == 20.0
+    assert w.turn.arc_min_cumulative_deg == 30.0
+
+
+def test_quantize_turn_angle():
+    """Verify angle quantization rounds to nearest resolution step (default 15°)."""
+    w = DEFAULT_SAFETY_WEIGHTS
+
+    assert w.quantize_turn_angle(0.0) == 0
+    assert w.quantize_turn_angle(4.2) == 0
+    assert w.quantize_turn_angle(7.5) == 15   # half-way rounds up
+    assert w.quantize_turn_angle(14.0) == 15
+    assert w.quantize_turn_angle(17.7) == 15
+    assert w.quantize_turn_angle(29.8) == 30
+    assert w.quantize_turn_angle(40.0) == 45
+    assert w.quantize_turn_angle(59.3) == 60
+    assert w.quantize_turn_angle(-59.3) == 60  # absolute value
+    assert w.quantize_turn_angle(85.2) == 90
+    assert w.quantize_turn_angle(92.6) == 90
+
+    # Custom resolution (e.g. 10°)
+    custom_w = SafetyWeightsConfig(turn=TurnPenaltyConfig(turn_angle_resolution_deg=10))
+    assert custom_w.quantize_turn_angle(59.3) == 60
+    assert custom_w.quantize_turn_angle(64.0) == 60
+    assert custom_w.quantize_turn_angle(66.0) == 70
+

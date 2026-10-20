@@ -55,6 +55,18 @@ class SafetyScoreWeights:
 
 
 @dataclass
+class TurnPenaltyConfig:
+    """Routing cost penalties and guidance quantization for turns and curves."""
+
+    turn_penalty_enabled: bool = True
+    base_turn_penalty: float = 1.0          # Base meter penalty for a 90° turn in pathfinding
+    min_turn_angle_deg: float = 20.0        # Minimum angle to recognize a distinct turn
+    turn_angle_resolution_deg: int = 15     # Quantization step in degrees (adjustable: 15°, 30°, etc.)
+    arc_max_edge_length_m: float = 20.0     # Max length of an edge to qualify as an arc micro-segment
+    arc_min_cumulative_deg: float = 30.0    # Min cumulative angle change to qualify as a curving arc
+
+
+@dataclass
 class RatingThresholds:
     """Thresholds for categorizing overall route accessibility ratings."""
 
@@ -72,8 +84,15 @@ class SafetyWeightsConfig:
     sidewalk: SidewalkMultipliers = field(default_factory=SidewalkMultipliers)
     crosswalk: CrosswalkMultipliers = field(default_factory=CrosswalkMultipliers)
     kerb: KerbMultipliers = field(default_factory=KerbMultipliers)
+    turn: TurnPenaltyConfig = field(default_factory=TurnPenaltyConfig)
     safety_score: SafetyScoreWeights = field(default_factory=SafetyScoreWeights)
     rating_thresholds: RatingThresholds = field(default_factory=RatingThresholds)
+
+    def quantize_turn_angle(self, angle_deg: float) -> int:
+        """Quantize an angle in degrees to the configured resolution (default 15°)."""
+        import math
+        res = max(1, self.turn.turn_angle_resolution_deg)
+        return int(math.floor(abs(angle_deg) / res + 0.5)) * res
 
     def compute_sidewalk_multiplier(
         self,

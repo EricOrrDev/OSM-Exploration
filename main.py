@@ -160,6 +160,10 @@ def run_route(args: argparse.Namespace) -> None:
         action_badge = f"[{inst['action']}]"
         print(f"\nStep {inst['step']} {action_badge}")
         print(f"  Speaker: \"{inst['spoken_instruction']}\"")
+        if inst.get("is_curve"):
+            print(f"  [Curve Trajectory: {inst.get('turn_direction', 'unknown').capitalize()} arc (~{inst.get('turn_angle_deg', 0)}°)]")
+        elif inst.get("turn_direction"):
+            print(f"  [Turn Alignment: {inst.get('turn_direction', 'unknown').capitalize()} {inst.get('turn_angle_deg', 0)}°]")
         if inst.get("tactile_cue"):
             print("  [Haptic/Tactile Cue: Vibrates cane/wearable upon approaching truncated domes]")
         if inst.get("has_aps"):

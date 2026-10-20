@@ -104,4 +104,5 @@ from .routing.safety_weights import (
     SafetyScoreWeights,
     SafetyWeightsConfig,
     SidewalkMultipliers,
+    TurnPenaltyConfig,
 )
