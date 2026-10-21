@@ -26,6 +26,7 @@ from src.parser.osm_parser import OSMParser
 from src.routing.pedestrian_graph import PedestrianGraph
 from src.routing.guidance import AudioGuidanceGenerator
 from src.benchmark.coverage_analyzer import CoverageAnalyzer
+from src.benchmark.subsystem_benchmark import SubsystemBenchmark
 from src.export.geojson_exporter import GeoJSONExporter
 
 
@@ -94,8 +95,9 @@ def run_route(args: argparse.Namespace) -> None:
         bbox = DEFAULT_BBOX
         fixture_name = None
 
+    offline_mode = getattr(args, "offline", False)
     client = OverpassClient()
-    raw = client.fetch_pedestrian_data(bbox, fixture_name=fixture_name)
+    raw = client.fetch_pedestrian_data(bbox, fixture_name=fixture_name, offline=offline_mode)
     parser = OSMParser()
     network = parser.parse(raw)
     graph = PedestrianGraph(network)
@@ -217,6 +219,16 @@ def run_export(args: argparse.Namespace) -> None:
     print(f"     Path: {out_path.resolve()}")
 
 
+def run_benchmark(args: argparse.Namespace) -> None:
+    """Benchmark and validate subsystem latencies against allowable performance budgets."""
+    preset = getattr(args, "preset", "osu-to-safeway")
+    bench = SubsystemBenchmark()
+    results = bench.run_benchmark(preset_name=preset)
+    all_passed = bench.print_summary(results)
+    if not all_passed:
+        sys.exit(1)
+
+
 def run_geocode(args: argparse.Namespace) -> None:
     """Geocode query using free OpenStreetMap Nominatim."""
     client = NominatimClient()
@@ -300,6 +312,7 @@ def main() -> None:
     # Route
     route_p = subparsers.add_parser("route", help="Compute accessible pedestrian path & audio guidance")
     route_p.add_argument("--preset", type=str, choices=list(PRESETS.keys()), default=None, help="Named corridor preset (e.g. osu-to-safeway)")
+    route_p.add_argument("--offline", action="store_true", help="Bypass live network requests and use local offline fixtures/cache immediately")
     route_p.add_argument("--start-lat", type=float, default=DEFAULT_START[0])
     route_p.add_argument("--start-lon", type=float, default=DEFAULT_START[1])
     route_p.add_argument("--end-lat", type=float, default=DEFAULT_END[0])
@@ -330,6 +343,10 @@ def main() -> None:
     export_p.add_argument("--citywide", action="store_true", help="Export full citywide pedestrian network")
     export_p.add_argument("--output", type=str, default=None)
 
+    # Benchmark
+    bench_p = subparsers.add_parser("benchmark", help="Measure subsystem execution latencies against allowable budgets")
+    bench_p.add_argument("--preset", type=str, choices=list(PRESETS.keys()), default="osu-to-safeway", help="Preset corridor to profile")
+
     # Geocode
     geo_p = subparsers.add_parser("geocode", help="Geocode address using free Nominatim")
     geo_p.add_argument("query", type=str, help="Search query")
@@ -346,6 +363,8 @@ def main() -> None:
         run_coverage(args)
     elif args.command == "export-geojson":
         run_export(args)
+    elif args.command == "benchmark":
+        run_benchmark(args)
     elif args.command == "geocode":
         run_geocode(args)
     else:

@@ -223,5 +223,5 @@ __marimo__/
 output/
 
 # On-device cached raster basemap tiles
-cache/tiles/
+cache/
 

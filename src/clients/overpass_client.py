@@ -63,9 +63,11 @@ class OverpassClient:
         use_cache: bool = True,
         force_refresh: bool = False,
         fixture_name: Optional[str] = None,
+        offline: bool = False,
+        timeout: int = 6,
     ) -> Dict[str, Any]:
         """Fetch pedestrian features inside bounding box, using disk cache when available."""
-        if self.mock_mode:
+        if self.mock_mode or offline:
             return self._load_fixture(fixture_name)
 
         cache_key = hashlib.md5(f"{bbox}".encode("utf-8")).hexdigest()
@@ -81,7 +83,7 @@ class OverpassClient:
         query = self.build_pedestrian_query(bbox)
         headers = {"User-Agent": USER_AGENT}
 
-        # Try primary endpoint, then mirrors
+        # Try primary endpoint, then mirrors with fast timeout
         endpoints = [self.endpoint] + [m for m in OVERPASS_MIRRORS if m != self.endpoint]
         for url in endpoints:
             try:
@@ -89,7 +91,7 @@ class OverpassClient:
                     url,
                     data={"data": query},
                     headers=headers,
-                    timeout=20,
+                    timeout=timeout,
                 )
                 if resp.status_code == 200:
                     data = resp.json()
@@ -103,8 +105,15 @@ class OverpassClient:
             except Exception:
                 continue
 
-        # Fallback to fixture if network or endpoints fail
-        return self._load_fixture(fixture_name)
+        # Fallback to curated fixture if network or endpoints fail, caching locally
+        fallback_data = self._load_fixture(fixture_name)
+        if fallback_data and use_cache:
+            try:
+                with open(cache_file, "w", encoding="utf-8") as f:
+                    json.dump(fallback_data, f)
+            except Exception:
+                pass
+        return fallback_data
 
     @staticmethod
     def generate_grid_tiles(
