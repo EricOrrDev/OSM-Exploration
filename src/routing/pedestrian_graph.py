@@ -3,9 +3,9 @@
 from dataclasses import dataclass, field
 import heapq
 import math
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple, Union
 from ..models.pedestrian import CrosswalkFeature, KerbFeature, PedestrianNetwork, SidewalkFeature
-from .safety_weights import DEFAULT_SAFETY_WEIGHTS, SafetyWeightsConfig
+from .safety_weights import DEFAULT_SAFETY_WEIGHTS, RoutingPreference, SafetyWeightsConfig
 
 
 def haversine_distance_m(p1: Tuple[float, float], p2: Tuple[float, float]) -> float:
@@ -258,10 +258,25 @@ class PedestrianGraph:
                     closest_id = nid
         return closest_id
 
-    def route(self, start_node: int, end_node: int) -> Optional[RouteResult]:
-        """Compute the most accessible path for a blind pedestrian using Dijkstra's algorithm."""
+    def route(
+        self,
+        start_node: int,
+        end_node: int,
+        preference: Union[str, RoutingPreference] = RoutingPreference.BALANCED,
+    ) -> Optional[RouteResult]:
+        """Compute the most accessible path for a blind pedestrian using Dijkstra's algorithm.
+
+        Supports user-configurable routing preferences:
+        - BALANCED: Standard accessibility safety weighting.
+        - FEWER_TURNS: Significantly penalizes turns and curves to reduce cognitive fatigue.
+        - SHORTEST: Raw metric distance minimization.
+        """
         if start_node not in self.adj or end_node not in self.network.raw_nodes:
             return None
+
+        pref = RoutingPreference(preference) if isinstance(preference, str) else preference
+        is_fewer_turns = (pref == RoutingPreference.FEWER_TURNS)
+        is_shortest = (pref == RoutingPreference.SHORTEST)
 
         if start_node == end_node:
             rating = self.weights.compute_accessibility_rating(0.0, 0.0)
@@ -281,7 +296,7 @@ class PedestrianGraph:
         visited = set()
 
         turn_cfg = self.weights.turn
-        apply_turn_penalties = turn_cfg.turn_penalty_enabled and turn_cfg.base_turn_penalty > 0
+        apply_turn_penalties = not is_shortest and turn_cfg.turn_penalty_enabled and (turn_cfg.base_turn_penalty > 0 or is_fewer_turns)
         nodes = self.network.raw_nodes
 
         best_end_state: Optional[Tuple[int, Optional[int]]] = None
@@ -306,15 +321,28 @@ class PedestrianGraph:
                     # Prevent direct 180° backtracking on the same physical segment
                     continue
 
+                edge_cost = edge.length_m if is_shortest else edge.effective_weight
                 turn_cost = 0.0
+
                 if apply_turn_penalties and p is not None and p in nodes and u in nodes and v in nodes:
                     b_in = calculate_bearing(nodes[p], nodes[u])
                     b_out = calculate_bearing(nodes[u], nodes[v])
                     angle_diff = abs(normalize_angle_diff(b_in, b_out))
-                    if angle_diff >= turn_cfg.min_turn_angle_deg:
-                        turn_cost = turn_cfg.base_turn_penalty * (angle_diff / 90.0)
 
-                new_cost = cur_dist + edge.effective_weight + turn_cost
+                    if angle_diff >= turn_cfg.min_turn_angle_deg:
+                        if is_fewer_turns:
+                            # Substantial fixed penalty + amplified turn angle penalty
+                            turn_cost = (
+                                turn_cfg.base_turn_penalty * (angle_diff / 90.0) * turn_cfg.fewer_turns_multiplier
+                                + turn_cfg.fewer_turns_fixed_penalty
+                            )
+                        else:
+                            turn_cost = turn_cfg.base_turn_penalty * (angle_diff / 90.0) + turn_cfg.fixed_turn_penalty
+                    elif is_fewer_turns and angle_diff >= 10.0:
+                        # Curving micro-segments: add curve fatigue penalty
+                        turn_cost = turn_cfg.fewer_turns_curve_penalty * (angle_diff / turn_cfg.min_turn_angle_deg)
+
+                new_cost = cur_dist + edge_cost + turn_cost
                 if new_cost < distances.get(next_state, float("inf")):
                     distances[next_state] = new_cost
                     previous_edges[next_state] = (state, edge)

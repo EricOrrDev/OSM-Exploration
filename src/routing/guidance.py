@@ -5,7 +5,14 @@ from ..models.pedestrian import PedestrianNetwork
 from .button_detector import ButtonDetector
 from .intersection_classifier import IntersectionClassifier
 from .pedestrian_graph import RouteResult, calculate_bearing, normalize_angle_diff
-from .safety_weights import DEFAULT_SAFETY_WEIGHTS, SafetyWeightsConfig
+from .safety_weights import (
+    DEFAULT_SAFETY_WEIGHTS,
+    DEFAULT_VERBIAGE_CONFIG,
+    CurveVerbiagePreset,
+    DirectionMode,
+    GuidanceVerbiageConfig,
+    SafetyWeightsConfig,
+)
 
 
 class AudioGuidanceGenerator:
@@ -18,11 +25,13 @@ class AudioGuidanceGenerator:
         button_detector: Optional[ButtonDetector] = None,
         map_data_dir: Optional[Path] = None,
         weights: Optional[SafetyWeightsConfig] = None,
+        verbiage_config: Optional[GuidanceVerbiageConfig] = None,
     ):
         self.network = network
         self.classifier = classifier or IntersectionClassifier(network, map_data_dir=map_data_dir)
         self.button_detector = button_detector or ButtonDetector(network)
         self.weights = weights or DEFAULT_SAFETY_WEIGHTS
+        self.verbiage = verbiage_config or self.weights.verbiage or DEFAULT_VERBIAGE_CONFIG
 
     def generate_instructions(self, route: RouteResult) -> List[Dict[str, Any]]:
         """Generate auditory instructions for each segment and transition along the route."""
@@ -266,7 +275,14 @@ class AudioGuidanceGenerator:
 
                 q_angle = self.weights.quantize_turn_angle(arc_cum_angle)
                 dir_str = "right" if arc_cum_angle > 0 else "left"
-                speech = f"Follow the curving sidewalk to the {dir_str} for {arc_dist:.0f} meters."
+                clock_pos = self.verbiage.angle_to_clock(arc_cum_angle)
+
+                curve_name = edges[arc_edges[0]].sidewalk.name if edges[arc_edges[0]].sidewalk else "sidewalk"
+                speech = self.verbiage.format_curve(
+                    direction=dir_str,
+                    distance_m=arc_dist,
+                    name=curve_name,
+                )
                 has_tactile = any(edges[k].sidewalk and edges[k].sidewalk.has_tactile_paving for k in arc_edges)
 
                 instructions.append({
@@ -278,6 +294,7 @@ class AudioGuidanceGenerator:
                     "is_curve": True,
                     "turn_direction": dir_str,
                     "turn_angle_deg": q_angle,
+                    "clock_position": clock_pos,
                 })
                 step_num += 1
                 i = arc_edges[-1] + 1
@@ -287,6 +304,7 @@ class AudioGuidanceGenerator:
             is_discrete_turn = abs(turn_diff) >= turn_cfg.min_turn_angle_deg
             q_turn = self.weights.quantize_turn_angle(turn_diff) if is_discrete_turn else 0
             turn_dir = ("right" if turn_diff > 0 else "left") if is_discrete_turn else None
+            clock_pos = self.verbiage.angle_to_clock(turn_diff) if is_discrete_turn else None
 
             # Accumulate straight sidewalk distance
             straight_dist = edge.length_m
@@ -308,10 +326,18 @@ class AudioGuidanceGenerator:
                 has_tactile = has_tactile or (next_sw and next_sw.has_tactile_paving)
                 j += 1
 
+            target_desc = f"{surface}{name} {width}{tactile}".strip()
+
             if is_discrete_turn:
-                speech = f"Turn {q_turn} degrees {turn_dir}, then follow {surface}{name} {width}{tactile}for {straight_dist:.0f} meters."
+                speech, meta = self.verbiage.format_turn(
+                    angle_deg=q_turn,
+                    direction=turn_dir,
+                    target=target_desc,
+                    distance_m=straight_dist,
+                    raw_angle=turn_diff,
+                )
             else:
-                speech = f"Follow {surface}{name} {width}{tactile}for {straight_dist:.0f} meters."
+                speech = f"Follow {target_desc} for {straight_dist:.0f} meters."
 
             speech = re.sub(r"\s+", " ", speech).strip()
 
@@ -325,6 +351,8 @@ class AudioGuidanceGenerator:
             if is_discrete_turn:
                 inst_dict["turn_direction"] = turn_dir
                 inst_dict["turn_angle_deg"] = q_turn
+                inst_dict["clock_position"] = clock_pos
+                inst_dict["direction_mode"] = self.verbiage.direction_mode.value
 
             instructions.append(inst_dict)
             step_num += 1

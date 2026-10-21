@@ -97,12 +97,20 @@ PRESETS = {
 # Pedestrian Accessibility & Routing Safety Weights (Single Source of Truth)
 # =============================================================================
 from .routing.safety_weights import (
+    DEFAULT_HAZARD_WEIGHTS,
     DEFAULT_SAFETY_WEIGHTS,
     CrosswalkMultipliers,
+    HazardMetricWeights,
     KerbMultipliers,
     RatingThresholds,
     SafetyScoreWeights,
     SafetyWeightsConfig,
     SidewalkMultipliers,
     TurnPenaltyConfig,
+)
+from .models.pedestrian import (
+    HAZARD_WEIGHTS,
+    configure_hazard_weights,
+    get_hazard_weights,
+    set_hazard_weights,
 )

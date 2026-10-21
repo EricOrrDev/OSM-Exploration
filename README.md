@@ -19,24 +19,59 @@ In contrast, **OpenStreetMap provides dedicated, community-standardized micro-pe
 
 ## Architecture & Capabilities
 
+```mermaid
+flowchart TD
+    subgraph Ingestion ["1. Data & Parsing"]
+        api["Overpass API / Offline Cache"] --> parser["OSMParser"]
+        parser --> models["Pedestrian Feature Models"]
+    end
+
+    subgraph Weights ["2. Centralized Weights & Controls"]
+        models --> weights["SafetyWeightsConfig (Single Source of Truth)"]
+        weights --> hazard["Hazard Metric (0.0 to 1.0)"]
+        weights --> rab["> 5x Roundabout Hazard Multiplier (5.5x)"]
+    end
+
+    subgraph Routing ["3. Accessibility Pathfinding"]
+        weights --> graph["PedestrianGraph"]
+        pref["Routing Preference (BALANCED vs FEWER_TURNS)"] --> graph
+        graph --> route["Accessible Dijkstra Router"]
+    end
+
+    subgraph Guidance ["4. Spoken Audio Guidance"]
+        route --> audio["AudioGuidanceGenerator"]
+        audio --> quant["15° Turn Quantization & Clock Face Mode"]
+        audio --> sweep["Curving Arc Batching ('Sweep Left / Right')"]
+    end
 ```
-[ Overpass API / Offline Fixture ]
-               │
-               ▼
-      [ OpenSidewalks Parser ]  ──> Extracts Crosswalks, Curb Cuts, Sidewalks, Signals
-               │
-               ▼
-    [ Pedestrian Network Graph ]
-               │
-               ▼
- [ Blind Safety Cost Function ]  ──> 50% discount for APS signals; 400% penalty for unmarked crossings
-               │
-               ▼
-[ Accessible Dijkstra Router ]  ──> Finds safest accessible corridor (not just shortest vehicle path)
-               │
-               ▼
-  [ Screen-Reader Audio Guidance ]  ──> Generates tactile announcements and auditory crossing alerts
-```
+
+---
+
+## Technical Documentation Guides
+
+For in-depth architecture, mathematical specifications, and code recipes:
+- 📖 [**Safety Weights, Hazard Metric & Guidance Guide**](docs/SAFETY_AND_ROUTING_GUIDE.md): Mathematical formulations, 15° quantization, clock face directions, sweeping curves, fewer-turns pathfinding, and >5x roundabout risk modeling.
+- 💾 [**Universal Offline Caching Guide**](docs/OFFLINE_CACHING_GUIDE.md): Architecture for default persistent disk caching across Nominatim, Overpass, Carto basemap tiles, and Google Maps clients.
+
+---
+
+## Key Capabilities
+
+1. **Centralized Accessibility & Hazard Weights**:
+   - Single source of truth in [`src/models/safety_weights.py`](src/models/safety_weights.py) directly exposed at the top of [`src/models/pedestrian.py`](src/models/pedestrian.py).
+   - Adjust `HAZARD_WEIGHTS` or `SAFETY_WEIGHTS` dynamically; all calculations and pathfinding costs update system-wide immediately.
+2. **Audio Guidance with Strict 15° Quantization & Clock Face Directions**:
+   - Spoken turns in degrees are strictly quantized to the nearest 15° increment ($15^\circ, 30^\circ, 45^\circ, \dots, 180^\circ$).
+   - User-configurable **Clock Face Mode** (e.g. *"Turn to 9 o'clock"* or *"Turn to 1:30"*) based on Orientation & Mobility standards.
+3. **Curving Arc Batching & Sweeping Verbiage**:
+   - Consecutive curving segments batch into unified sweeping instructions: *"Sweep right for 14 meters."*
+   - Configurable templates and presets (`CurveVerbiagePreset.SWEEP`, `CURVING`, `BEAR`, `CUSTOM`).
+4. **Fewer-Turns Navigation Preference (`RoutingPreference.FEWER_TURNS`)**:
+   - Incorporates fixed turn penalties and curve costs into Dijkstra pathfinding to minimize cognitive fatigue and guidance interruptions, preferencing 1 sharp turn over navigating winding curves.
+5. **Roundabout Hazard Escalation (> 5x Normal Crossing)**:
+   - Roundabout crosswalks incur a $5.5\times$ routing multiplier and an extreme risk penalty ($1.00$ hazard score) reflecting the danger of uncontrolled entering traffic.
+6. **Default Persistent Disk Caching**:
+   - All network calls (Nominatim geocoding, Overpass queries, Carto basemap tiles) automatically cache to disk by default.
 
 ---
 
@@ -68,25 +103,31 @@ python main.py route --preset osu-to-safeway --export-geojson osu_to_safeway_rou
 **Example Screen-Reader Output**:
 ```text
 Step 1 [WALK_SIDEWALK]
-  Speaker: "Follow concrete NW 3rd St Sidewalk (2.0m wide) with tactile guidance for 56 meters."
+  Speaker: "Follow sidewalk for 164 meters."
+
+Step 2 [WALK_SIDEWALK]
+  Speaker: "Turn 60 degrees left, then follow sidewalk for 10 meters."
+  [Heading shift: 60° left, Clock direction: 10 o'clock]
+
+Step 3 [WALK_SIDEWALK]
+  Speaker: "Sweep right for 14 meters."
+  [Curving micro-arc batched into sweeping instruction]
+
+Step 4 [APPROACH_CURB]
+  Speaker: "Approach curb edge to cross SW Donovan Avenue: Step down lowered curb ramp with tactile truncated domes."
   [Haptic/Tactile Cue: Vibrates cane/wearable upon approaching truncated domes]
 
-Step 2 [APPROACH_CURB]
-  Speaker: "Approach curb edge: Step down lowered curb ramp with tactile truncated domes."
-  [Haptic/Tactile Cue: Vibrates cane/wearable upon approaching truncated domes]
+Step 5 [CROSS_STREET]
+  Speaker: "Cross SW Donovan Avenue at midblock crossing (9 meters). Traffic signalized intersection (no audible signal detected, verify traffic sounds)."
 
-Step 3 [CROSS_STREET]
-  Speaker: "Cross NE Franklin Ave APS Crossing (zebra pattern) for 32 meters. Accessible Pedestrian Signal active with audible locator tone. Pedestrian refuge island present in median."
-  [Auditory Cue: Plays 1000 Hz pedestrian locator beep / chirp]
+Step 6 [EXIT_CURB]
+  Speaker: "Step up lowered curb ramp onto tactile paving to complete crossing SW Donovan Avenue."
 
-Step 4 [EXIT_CURB]
-  Speaker: "Step up lowered curb ramp onto tactile paving to exit roadway."
-  [Haptic/Tactile Cue: Vibrates cane/wearable upon approaching truncated domes]
+Step 7 [WALK_SIDEWALK]
+  Speaker: "Turn 90 degrees left, then follow sidewalk for 67 meters."
+  [Heading shift: 90° left, Clock direction: 9 o'clock]
 
-Step 5 [WALK_SIDEWALK]
-  Speaker: "Follow concrete East Corridor Sidewalk (1.8m wide) for 44 meters."
-
-Step 6 [ARRIVE]
+Step 8 [ARRIVE]
   Speaker: "You have arrived at your destination."
 ```
 
@@ -121,7 +162,7 @@ python main.py export-geojson --citywide --output bend_citywide_network.geojson
 ```
 
 ### 5. Free Address & Intersection Geocoding
-Geocodes addresses or street corners using Nominatim without Google Maps billing:
+Geocodes addresses or street corners using Nominatim without Google Maps billing (cached on disk automatically):
 ```bash
 python main.py geocode "Franklin Ave and 3rd St, Bend, OR"
 ```
@@ -132,4 +173,4 @@ python main.py geocode "Franklin Ave and 3rd St, Bend, OR"
 ```bash
 python -m pytest tests -v
 ```
-All unit tests run offline in `< 0.2s` using verified fixtures.
+All 69 unit tests run offline in `< 30s` using cached fixtures and spatial mocks.

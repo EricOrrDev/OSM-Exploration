@@ -212,18 +212,18 @@ def test_osu_safeway_turns_and_arcs():
     assert len(turn_60_left) >= 1
     assert "Turn 60 degrees left" in turn_60_left[0]["spoken_instruction"]
 
-    # 3. Batched arc curving to the right (the 2 consecutive campus right bends)
+    # 3. Batched arc sweeping to the right (the 2 consecutive campus right bends)
     curve_steps = [inst for inst in instructions if inst.get("is_curve")]
     assert len(curve_steps) >= 2  # Campus arc and Safeway entrance arc
-    assert any("Follow the curving sidewalk to the right for 14 meters." in c["spoken_instruction"] for c in curve_steps)
+    assert any("Sweep right for 14 meters." in c["spoken_instruction"] for c in curve_steps)
 
     # 4. Turn 90° left to cross Donovan Ave
     turn_90_left = [inst for inst in instructions if inst.get("turn_direction") == "left" and inst.get("turn_angle_deg") == 90]
     assert len(turn_90_left) >= 1
     assert any("Turn 90 degrees left" in inst["spoken_instruction"] for inst in turn_90_left)
 
-    # 5. Entrance arc curving right into Safeway approach
-    assert any("Follow the curving sidewalk to the right for 19 meters." in c["spoken_instruction"] for c in curve_steps)
+    # 5. Entrance arc sweeping right into Safeway approach
+    assert any("Sweep right for 19 meters." in c["spoken_instruction"] for c in curve_steps)
 
     # 6. Final arrival
     assert instructions[-1]["action"] == "ARRIVE"

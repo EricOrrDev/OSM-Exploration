@@ -26,7 +26,9 @@ class OverpassClient:
         mock_mode: Optional[bool] = None,
     ):
         self.endpoint = endpoint or OVERPASS_ENDPOINT
-        self.cache_dir = cache_dir or CACHE_DIR
+        base_cache = cache_dir or CACHE_DIR
+        self.cache_dir = base_cache if base_cache.name == "overpass" else base_cache / "overpass"
+        self.cache_dir.mkdir(parents=True, exist_ok=True)
         self.mock_mode = mock_mode if mock_mode is not None else MOCK_MODE
 
     def build_pedestrian_query(self, bbox: Tuple[float, float, float, float]) -> str:
@@ -59,6 +61,7 @@ class OverpassClient:
         self,
         bbox: Tuple[float, float, float, float],
         use_cache: bool = True,
+        force_refresh: bool = False,
         fixture_name: Optional[str] = None,
     ) -> Dict[str, Any]:
         """Fetch pedestrian features inside bounding box, using disk cache when available."""
@@ -68,7 +71,7 @@ class OverpassClient:
         cache_key = hashlib.md5(f"{bbox}".encode("utf-8")).hexdigest()
         cache_file = self.cache_dir / f"overpass_{cache_key}.json"
 
-        if use_cache and cache_file.exists():
+        if use_cache and not force_refresh and cache_file.exists():
             try:
                 with open(cache_file, "r", encoding="utf-8") as f:
                     return json.load(f)
