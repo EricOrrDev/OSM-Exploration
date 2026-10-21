@@ -91,6 +91,55 @@ PRESETS = {
         "bbox": WEST_YELLOWSTONE_BBOX,
         "fixture": "west_yellowstone_pedestrian.json",
     },
+    # Archetype Prototype Presets (Short, isolated corridor evaluation)
+    "century-chandler": {
+        "name": "Roundabout Prototype: SW Century Dr & SW Chandler Ave",
+        "start": (44.0416473, -121.3317034),
+        "end": (44.0418175, -121.3317061),
+        "bbox": (44.0405, -121.3340, 44.0430, -121.3305),
+        "fixture": "prototype_century_chandler.json",
+        "archetype": "roundabout",
+    },
+    "3rd-revere": {
+        "name": "4-Way Stop/Signal Prototype: NE 3rd St & NE Revere Ave",
+        "start": (44.06775, -121.30275),
+        "end": (44.06765, -121.30225),
+        "bbox": (44.0665, -121.3040, 44.0690, -121.3010),
+        "fixture": "prototype_3rd_revere.json",
+        "archetype": "4-way",
+    },
+    "colorado-straight": {
+        "name": "Straight Road Prototype: SW Colorado Ave Sidewalk",
+        "start": (44.04555, -121.32320),
+        "end": (44.04545, -121.32240),
+        "bbox": (44.0440, -121.3250, 44.0470, -121.3200),
+        "fixture": "prototype_colorado_straight.json",
+        "archetype": "straight",
+    },
+    "columbia-bridge": {
+        "name": "Bridge Prototype: SW Columbia St Crossing",
+        "start": (44.043624, -121.317574),
+        "end": (44.043558, -121.317240),
+        "bbox": (44.0425, -121.3190, 44.0445, -121.3160),
+        "fixture": "prototype_columbia_bridge.json",
+        "archetype": "bridge",
+    },
+    "hwy20-jamison": {
+        "name": "Mid-Block Crosswalk Prototype: Hwy 20 by Jamison St",
+        "start": (44.09638, -121.30359),
+        "end": (44.09640, -121.30323),
+        "bbox": (44.0950, -121.3055, 44.0980, -121.3015),
+        "fixture": "prototype_hwy20_jamison.json",
+        "archetype": "midblock",
+    },
+    "powers-hwy97": {
+        "name": "Refuge Island Prototype: Powers & Hwy 97",
+        "start": (44.02875, -121.31615),
+        "end": (44.02865, -121.31570),
+        "bbox": (44.0270, -121.3180, 44.0305, -121.3140),
+        "fixture": "prototype_powers_hwy97.json",
+        "archetype": "refuge_island",
+    },
 }
 
 # =============================================================================

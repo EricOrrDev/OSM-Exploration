@@ -1,0 +1,157 @@
+{
+  "version": 0.6,
+  "generator": "Capstone Prototype Extractor",
+  "elements": [
+    {
+      "type": "node",
+      "id": 7157284788,
+      "lat": 44.0963945,
+      "lon": -121.3032982,
+      "tags": {
+        "crossing": "uncontrolled",
+        "crossing:island": "no",
+        "crossing:markings": "lines",
+        "crossing_ref": "none",
+        "flashing_lights": "button",
+        "highway": "crossing",
+        "traffic_calming": "no"
+      }
+    },
+    {
+      "type": "node",
+      "id": 7157284787,
+      "lat": 44.096376,
+      "lon": -121.3037012
+    },
+    {
+      "type": "node",
+      "id": 7157284801,
+      "lat": 44.0963984,
+      "lon": -121.3032514
+    },
+    {
+      "type": "node",
+      "id": 7157284802,
+      "lat": 44.0964004,
+      "lon": -121.3032326
+    },
+    {
+      "type": "node",
+      "id": 7157284803,
+      "lat": 44.0964061,
+      "lon": -121.3032085
+    },
+    {
+      "type": "node",
+      "id": 7157284804,
+      "lat": 44.0965872,
+      "lon": -121.3031092
+    },
+    {
+      "type": "node",
+      "id": 7157284805,
+      "lat": 44.0970853,
+      "lon": -121.3028082
+    },
+    {
+      "type": "node",
+      "id": 7157284806,
+      "lat": 44.0973924,
+      "lon": -121.3026232
+    },
+    {
+      "type": "node",
+      "id": 7157284807,
+      "lat": 44.0977653,
+      "lon": -121.302399
+    },
+    {
+      "type": "node",
+      "id": 12021370351,
+      "lat": 44.0963809,
+      "lon": -121.3035939
+    },
+    {
+      "type": "node",
+      "id": 7157284791,
+      "lat": 44.0982741,
+      "lon": -121.3021684
+    },
+    {
+      "type": "node",
+      "id": 7157284808,
+      "lat": 44.0980874,
+      "lon": -121.3022178
+    },
+    {
+      "type": "node",
+      "id": 7157284809,
+      "lat": 44.0981314,
+      "lon": -121.3022019
+    },
+    {
+      "type": "node",
+      "id": 7157284810,
+      "lat": 44.0981754,
+      "lon": -121.3022143
+    },
+    {
+      "type": "node",
+      "id": 7157284811,
+      "lat": 44.0982095,
+      "lon": -121.3022089
+    },
+    {
+      "type": "node",
+      "id": 12944658375,
+      "lat": 44.0982552,
+      "lon": -121.3021803
+    },
+    {
+      "type": "way",
+      "id": 766333996,
+      "nodes": [
+        7157284791,
+        12944658375,
+        7157284811,
+        7157284810,
+        7157284809,
+        7157284808,
+        7157284807,
+        7157284806,
+        7157284805,
+        7157284804,
+        7157284803,
+        7157284802,
+        7157284801,
+        7157284788,
+        12021370351,
+        7157284787
+      ],
+      "tags": {
+        "bicycle": "designated",
+        "footway": "sidewalk",
+        "highway": "footway",
+        "segregated": "no",
+        "surface": "concrete"
+      }
+    },
+    {
+      "type": "way",
+      "id": 9997157284,
+      "nodes": [
+        7157284788,
+        7157284801
+      ],
+      "tags": {
+        "footway": "crossing",
+        "highway": "footway",
+        "crossing": "uncontrolled",
+        "crossing:markings": "lines",
+        "flashing_lights": "button",
+        "crossing:island": "no",
+        "name": "Highway 20 Mid-Block Crosswalk"
+      }
+    }
+  ]
+}

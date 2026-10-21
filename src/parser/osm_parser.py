@@ -125,6 +125,7 @@ class OSMParser:
                 has_tactile = tags.get("tactile_paving") == "yes"
                 incline = self._parse_float(tags.get("incline"))
                 footway = tags.get("footway")
+                is_bridge = tags.get("bridge") in ("yes", "boardwalk", "viaduct")
 
                 sidewalks[way_id] = SidewalkFeature(
                     id=way_id,
@@ -137,6 +138,7 @@ class OSMParser:
                     has_tactile_paving=has_tactile,
                     incline_pct=incline,
                     footway=footway,
+                    is_bridge=is_bridge,
                 )
 
         return PedestrianNetwork(

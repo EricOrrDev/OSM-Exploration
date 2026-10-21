@@ -153,6 +153,7 @@ class SidewalkFeature(BaseModel):
     has_tactile_paving: bool = False
     incline_pct: Optional[float] = None
     footway: Optional[str] = None
+    is_bridge: bool = False
 
     @property
     def hazard_metric(self) -> float:

@@ -309,7 +309,9 @@ class AudioGuidanceGenerator:
             # Accumulate straight sidewalk distance
             straight_dist = edge.length_m
             has_tactile = sw.has_tactile_paving if sw else False
-            name = sw.name if (sw and sw.name) else "sidewalk"
+            is_bridge = sw.is_bridge if sw else False
+            default_name = "bridge walkway" if is_bridge else "sidewalk"
+            name = sw.name if (sw and sw.name) else default_name
             surface = f"{sw.surface} " if (sw and sw.surface) else ""
             width = f"({sw.width_m}m wide) " if (sw and sw.width_m) else ""
             tactile = "with tactile guidance " if has_tactile else ""
@@ -318,6 +320,8 @@ class AudioGuidanceGenerator:
             while j < n and edges[j].feature_type == "sidewalk":
                 next_sw = edges[j].sidewalk
                 if next_sw and getattr(next_sw, "footway", None) == "traffic_island":
+                    break
+                if next_sw and getattr(next_sw, "is_bridge", False) != is_bridge:
                     break
                 d = normalize_angle_diff(bearings[j - 1], bearings[j])
                 if abs(d) >= turn_cfg.min_turn_angle_deg:
