@@ -115,6 +115,8 @@ class AudioGuidanceGenerator:
                     if btn_cue.has_button and btn_cue.instruction_text:
                         curb_speech += f" {btn_cue.instruction_text}"
 
+                    u_pt = list(nodes.get(edge.u, (0.0, 0.0)))
+                    entry_pt = list(entry_kerb.coordinate) if (entry_kerb and entry_kerb.coordinate != (0.0, 0.0)) else u_pt
                     instructions.append({
                         "step": step_num,
                         "action": "APPROACH_CURB",
@@ -126,6 +128,7 @@ class AudioGuidanceGenerator:
                         "spoken_road_name": ctx.spoken_road_name if ctx else None,
                         "semantic_crossing_type": ctx.semantic_crossing_type.value if ctx else None,
                         "turning_vehicle_warning": ctx.turning_vehicle_warning if ctx else False,
+                        "coordinate": entry_pt,
                     })
                     step_num += 1
 
@@ -148,6 +151,8 @@ class AudioGuidanceGenerator:
                         f"Cross {cw_name}{markings} for {edge.length_m:.0f} meters.{aps_info}{island_info}"
                     )
 
+                cw_pts = [list(c) for c in cw.coordinates] if (cw and len(cw.coordinates) >= 2) else [list(nodes.get(edge.u, (0.0, 0.0))), list(nodes.get(edge.v, (0.0, 0.0)))]
+                mid_cw = [(cw_pts[0][0] + cw_pts[-1][0]) / 2.0, (cw_pts[0][1] + cw_pts[-1][1]) / 2.0] if cw_pts else [0.0, 0.0]
                 instructions.append({
                     "step": step_num,
                     "action": "CROSS_STREET",
@@ -160,6 +165,8 @@ class AudioGuidanceGenerator:
                     "spoken_road_name": ctx.spoken_road_name if ctx else None,
                     "semantic_crossing_type": ctx.semantic_crossing_type.value if ctx else None,
                     "corridor_street": ctx.corridor_street,
+                    "coordinate": mid_cw,
+                    "coordinates": cw_pts,
                 })
                 step_num += 1
 
@@ -198,6 +205,8 @@ class AudioGuidanceGenerator:
                     target_name = (ctx.spoken_road_name or ctx.road_crossed) if ctx else None
                     exit_target = f" to complete crossing {target_name}" if target_name else " to exit roadway"
                     exit_speech = f"Step up {exit_curb}{exit_tactile}{exit_target}."
+                    v_pt = list(nodes.get(edge.v, (0.0, 0.0)))
+                    exit_pt = list(exit_kerb.coordinate) if (exit_kerb and exit_kerb.coordinate != (0.0, 0.0)) else v_pt
                     instructions.append({
                         "step": step_num,
                         "action": "EXIT_CURB",
@@ -206,6 +215,7 @@ class AudioGuidanceGenerator:
                         "road_crossed": ctx.road_crossed if ctx else None,
                         "spoken_road_name": ctx.spoken_road_name if ctx else None,
                         "semantic_crossing_type": ctx.semantic_crossing_type.value if ctx else None,
+                        "coordinate": exit_pt,
                     })
                     step_num += 1
 
@@ -222,6 +232,9 @@ class AudioGuidanceGenerator:
                     f"Wait on center median pedestrian refuge island ({edge.length_m:.0f} meters). "
                     "Listen and verify traffic is clear before crossing the next lane."
                 )
+                u_pt = list(nodes.get(edge.u, (0.0, 0.0)))
+                v_pt = list(nodes.get(edge.v, (0.0, 0.0)))
+                mid_isl = [(u_pt[0] + v_pt[0]) / 2.0, (u_pt[1] + v_pt[1]) / 2.0]
                 instructions.append({
                     "step": step_num,
                     "action": "WALK_SIDEWALK",
@@ -229,6 +242,8 @@ class AudioGuidanceGenerator:
                     "spoken_instruction": speech,
                     "tactile_cue": sw.has_tactile_paving if sw else False,
                     "is_refuge_island": True,
+                    "coordinate": mid_isl,
+                    "coordinates": [u_pt, v_pt],
                 })
                 step_num += 1
                 i += 1
@@ -285,6 +300,15 @@ class AudioGuidanceGenerator:
                 )
                 has_tactile = any(edges[k].sidewalk and edges[k].sidewalk.has_tactile_paving for k in arc_edges)
 
+                arc_pts = []
+                for k in arc_edges:
+                    p_u = list(nodes.get(edges[k].u, (0.0, 0.0)))
+                    p_v = list(nodes.get(edges[k].v, (0.0, 0.0)))
+                    if not arc_pts or arc_pts[-1] != p_u:
+                        arc_pts.append(p_u)
+                    arc_pts.append(p_v)
+                mid_arc = arc_pts[len(arc_pts) // 2] if arc_pts else [0.0, 0.0]
+
                 instructions.append({
                     "step": step_num,
                     "action": "WALK_SIDEWALK",
@@ -295,6 +319,8 @@ class AudioGuidanceGenerator:
                     "turn_direction": dir_str,
                     "turn_angle_deg": q_angle,
                     "clock_position": clock_pos,
+                    "coordinate": mid_arc,
+                    "coordinates": arc_pts,
                 })
                 step_num += 1
                 i = arc_edges[-1] + 1
@@ -345,12 +371,23 @@ class AudioGuidanceGenerator:
 
             speech = re.sub(r"\s+", " ", speech).strip()
 
+            run_pts = []
+            for k in range(i, j):
+                p_u = list(nodes.get(edges[k].u, (0.0, 0.0)))
+                p_v = list(nodes.get(edges[k].v, (0.0, 0.0)))
+                if not run_pts or run_pts[-1] != p_u:
+                    run_pts.append(p_u)
+                run_pts.append(p_v)
+            mid_run = run_pts[len(run_pts) // 2] if run_pts else [0.0, 0.0]
+
             inst_dict: Dict[str, Any] = {
                 "step": step_num,
                 "action": "WALK_SIDEWALK",
                 "distance_m": round(straight_dist, 1),
                 "spoken_instruction": speech,
                 "tactile_cue": has_tactile,
+                "coordinate": mid_run,
+                "coordinates": run_pts,
             }
             if is_discrete_turn:
                 inst_dict["turn_direction"] = turn_dir
@@ -362,10 +399,12 @@ class AudioGuidanceGenerator:
             step_num += 1
             i = j
 
+        dest_coord = list(nodes.get(route.node_path[-1], (0.0, 0.0))) if route.node_path else [0.0, 0.0]
         instructions.append({
             "step": step_num,
             "action": "ARRIVE",
             "spoken_instruction": "You have arrived at your destination.",
+            "coordinate": dest_coord,
         })
 
         return self._consolidate_instructions(instructions)
@@ -416,12 +455,21 @@ class AudioGuidanceGenerator:
                     else:
                         break
 
+                combined_coords = []
+                for k in range(i, j):
+                    for pt in raw_instructions[k].get("coordinates", []):
+                        if not combined_coords or combined_coords[-1] != pt:
+                            combined_coords.append(pt)
+                mid_c = combined_coords[len(combined_coords) // 2] if combined_coords else curr.get("coordinate")
+
                 consolidated.append({
                     "step": len(consolidated) + 1,
                     "action": "WALK_SIDEWALK",
                     "distance_m": round(total_dist, 1),
                     "spoken_instruction": f"{descriptor} for {total_dist:.0f} meters.",
                     "tactile_cue": tactile,
+                    "coordinate": mid_c,
+                    "coordinates": combined_coords if combined_coords else curr.get("coordinates"),
                 })
                 i = j
 

@@ -569,6 +569,7 @@ class GeoJSONExporter:
 
         geojson_dict = GeoJSONExporter.export_route_to_geojson(route, network, instructions)
         geojson_str = json.dumps(geojson_dict)
+        instructions_json_str = json.dumps(instructions or [])
 
         nodes = network.raw_nodes
         start_pt = nodes.get(route.node_path[0], (44.045, -121.331)) if route.node_path else (44.045, -121.331)
@@ -745,6 +746,313 @@ class GeoJSONExporter:
       align-items: center;
       gap: 6px;
     }}
+
+    /* Navigation Stepper HUD Card */
+    .nav-hud {{
+      position: absolute;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: min(780px, calc(100vw - 32px));
+      z-index: 1000;
+      background: rgba(15, 23, 42, 0.95);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1.5px solid rgba(56, 189, 248, 0.35);
+      border-radius: 16px;
+      padding: 16px 20px;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.08);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      color: #f8fafc;
+      transition: all 0.25s ease;
+    }}
+    .nav-hud:hover {{
+      border-color: rgba(56, 189, 248, 0.6);
+      box-shadow: 0 20px 48px rgba(0, 0, 0, 0.7), 0 0 20px rgba(56, 189, 248, 0.2);
+    }}
+    .nav-header-row {{
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }}
+    .nav-badges {{
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }}
+    .step-pill {{
+      background: #0284c7;
+      color: #ffffff;
+      font-size: 12px;
+      font-weight: 800;
+      padding: 4px 10px;
+      border-radius: 20px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }}
+    .action-badge {{
+      font-size: 12px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }}
+    .action-walk {{ background: #059669; color: #ffffff; }}
+    .action-cross {{ background: #d97706; color: #ffffff; }}
+    .action-curb-approach {{ background: #7c3aed; color: #ffffff; }}
+    .action-curb-exit {{ background: #0d9488; color: #ffffff; }}
+    .action-arrive {{ background: #e11d48; color: #ffffff; }}
+
+    .nav-meta-chip {{
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 6px;
+      color: #cbd5e1;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }}
+    .chip-tactile {{
+      background: rgba(139, 92, 246, 0.25);
+      border-color: #8b5cf6;
+      color: #c4b5fd;
+    }}
+
+    .nav-header-actions {{
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }}
+    .nav-icon-btn {{
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      color: #f8fafc;
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+    }}
+    .nav-icon-btn:hover {{
+      background: rgba(56, 189, 248, 0.2);
+      border-color: #38bdf8;
+      color: #38bdf8;
+    }}
+    .nav-icon-btn.active {{
+      background: #0284c7;
+      border-color: #38bdf8;
+      color: #ffffff;
+    }}
+
+    .nav-instruction-text {{
+      font-size: 17px;
+      font-weight: 600;
+      line-height: 1.45;
+      color: #ffffff;
+      margin: 2px 0;
+      min-height: 48px;
+      display: flex;
+      align-items: center;
+    }}
+
+    .nav-progress-bar {{
+      width: 100%;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 2px;
+      overflow: hidden;
+      margin: 2px 0;
+    }}
+    .nav-progress-fill {{
+      height: 100%;
+      background: linear-gradient(90deg, #38bdf8, #10b981);
+      width: 0%;
+      transition: width 0.3s ease;
+    }}
+
+    .nav-controls-row {{
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 2px;
+    }}
+    .nav-btn-group {{
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }}
+    .nav-btn {{
+      background: #1e293b;
+      border: 1px solid #475569;
+      color: #f8fafc;
+      padding: 7px 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+      user-select: none;
+    }}
+    .nav-btn:hover:not(:disabled) {{
+      background: #334155;
+      border-color: #38bdf8;
+      color: #38bdf8;
+    }}
+    .nav-btn:disabled {{
+      opacity: 0.4;
+      cursor: not-allowed;
+    }}
+    .nav-btn-primary {{
+      background: #0284c7;
+      border-color: #38bdf8;
+      color: #ffffff;
+    }}
+    .nav-btn-primary:hover:not(:disabled) {{
+      background: #0369a1;
+      color: #ffffff;
+    }}
+
+    .nav-step-select {{
+      background: #1e293b;
+      border: 1px solid #475569;
+      color: #f8fafc;
+      padding: 6px 10px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      max-width: 220px;
+      outline: none;
+    }}
+    .nav-step-select:focus {{
+      border-color: #38bdf8;
+    }}
+
+    .keyboard-hint {{
+      font-size: 11px;
+      color: #64748b;
+    }}
+
+    /* Pulsing Leaflet Pedestrian Avatar */
+    .pulsing-avatar-container {{
+      background: transparent;
+      border: none;
+    }}
+    .pulsing-avatar {{
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      background: #0284c7;
+      border: 2.5px solid #ffffff;
+      border-radius: 50%;
+      color: #ffffff;
+      font-size: 16px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+      animation: avatarRipple 2s infinite ease-out;
+    }}
+    @keyframes avatarRipple {{
+      0% {{
+        box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.85);
+      }}
+      70% {{
+        box-shadow: 0 0 0 16px rgba(56, 189, 248, 0);
+      }}
+      100% {{
+        box-shadow: 0 0 0 0 rgba(56, 189, 248, 0);
+      }}
+    }}
+
+    /* Steps List Drawer Modal */
+    .nav-drawer {{
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      width: min(400px, calc(100vw - 32px));
+      max-height: calc(100vh - 200px);
+      z-index: 1000;
+      background: rgba(15, 23, 42, 0.96);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 14px;
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.55);
+      display: none;
+      flex-direction: column;
+      overflow: hidden;
+    }}
+    .nav-drawer-header {{
+      padding: 12px 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 14px;
+      font-weight: 700;
+      color: #38bdf8;
+    }}
+    .nav-drawer-close {{
+      background: none;
+      border: none;
+      color: #94a3b8;
+      font-size: 20px;
+      cursor: pointer;
+    }}
+    .nav-drawer-close:hover {{ color: #f8fafc; }}
+    .nav-drawer-list {{
+      overflow-y: auto;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }}
+    .drawer-step-item {{
+      padding: 10px 12px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      cursor: pointer;
+      transition: all 0.15s ease;
+      font-size: 13px;
+    }}
+    .drawer-step-item:hover {{
+      background: rgba(56, 189, 248, 0.12);
+      border-color: rgba(56, 189, 248, 0.35);
+    }}
+    .drawer-step-item.active {{
+      background: rgba(2, 132, 199, 0.25);
+      border-color: #38bdf8;
+      box-shadow: 0 0 12px rgba(56, 189, 248, 0.25);
+    }}
+    .drawer-step-header {{
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      font-weight: 700;
+      margin-bottom: 4px;
+      color: #94a3b8;
+    }}
+    .drawer-step-item.active .drawer-step-header {{
+      color: #38bdf8;
+    }}
   </style>
 </head>
 <body>
@@ -768,6 +1076,66 @@ class GeoJSONExporter:
   </div>
 
   <div id="map"></div>
+
+  <!-- Step-by-Step Navigation Player HUD -->
+  <div class="nav-hud" id="nav-hud" role="region" aria-label="Step-by-step pedestrian navigation">
+    <div class="nav-header-row">
+      <div class="nav-badges">
+        <span class="step-pill" id="hud-step-pill">Step 1</span>
+        <span class="action-badge action-walk" id="hud-action-badge">WALK</span>
+        <span class="nav-meta-chip" id="hud-dist-chip">📏 0m</span>
+        <span class="nav-meta-chip chip-tactile" id="hud-tactile-chip" style="display:none;">📳 Tactile Warning Domes</span>
+        <span class="nav-meta-chip" id="hud-turn-chip" style="display:none;">Turn</span>
+      </div>
+      <div class="nav-header-actions">
+        <label style="font-size:11px; display:flex; align-items:center; gap:4px; cursor:pointer; color:#94a3b8;" title="Automatically read aloud when advancing steps">
+          <input type="checkbox" id="auto-speak-toggle" style="cursor:pointer;" /> Auto-Speak
+        </label>
+        <button class="nav-icon-btn" id="btn-speak" title="Read current instruction aloud (Web Speech API)">
+          <span>🔊</span> Speak
+        </button>
+        <button class="nav-icon-btn" id="btn-toggle-drawer" title="Toggle full step list">
+          <span>📋</span> All Steps
+        </button>
+      </div>
+    </div>
+
+    <div class="nav-instruction-text" id="hud-speech-text" aria-live="polite">
+      Loading route guidance...
+    </div>
+
+    <div class="nav-progress-bar">
+      <div class="nav-progress-fill" id="hud-progress-fill"></div>
+    </div>
+
+    <div class="nav-controls-row">
+      <div class="nav-btn-group">
+        <button class="nav-btn" id="btn-first" title="First step (Home)">⏮ First</button>
+        <button class="nav-btn" id="btn-prev" title="Previous step (Left Arrow)">◀ Prev</button>
+        <button class="nav-btn nav-btn-primary" id="btn-next" title="Next step (Right Arrow / Enter)">Next ▶</button>
+        <button class="nav-btn" id="btn-last" title="Last step (End)">Last ⏭</button>
+      </div>
+
+      <select class="nav-step-select" id="hud-step-select" aria-label="Jump to specific step">
+      </select>
+
+      <div class="nav-btn-group">
+        <button class="nav-btn" id="btn-autoplay" title="Play / Pause automatic step walkthrough">
+          <span id="autoplay-icon">▶️</span> Auto-Play
+        </button>
+      </div>
+      <span class="keyboard-hint">Keys: [←] Prev • [→] Next • [Space] Play/Speak</span>
+    </div>
+  </div>
+
+  <!-- All Steps Drawer Modal -->
+  <div class="nav-drawer" id="nav-drawer">
+    <div class="nav-drawer-header">
+      <span>Turn-by-Turn Guidance Steps</span>
+      <button class="nav-drawer-close" id="btn-close-drawer">&times;</button>
+    </div>
+    <div class="nav-drawer-list" id="drawer-step-list"></div>
+  </div>
 
   <script>
     var map = L.map('map').setView([{start_pt[0]}, {start_pt[1]}], 16);
@@ -893,8 +1261,264 @@ class GeoJSONExporter:
     }}).addTo(map);
 
     try {{
-      map.fitBounds(geojsonLayer.getBounds(), {{ padding: [40, 40] }});
+      map.fitBounds(geojsonLayer.getBounds(), {{ padding: [40, 160] }});
     }} catch(e) {{}}
+
+    // =========================================================================
+    // Interactive Step-by-Step Navigation Player Engine
+    // =========================================================================
+    var navSteps = {instructions_json_str};
+    var currentStepIdx = 0;
+    var autoPlayTimer = null;
+    var activeStepPolyline = null;
+    var activeStepMarker = null;
+
+    // Custom animated avatar icon
+    var avatarIcon = L.divIcon({{
+      className: 'pulsing-avatar-container',
+      html: '<div class="pulsing-avatar">🚶</div>',
+      iconSize: [32, 32],
+      iconAnchor: [16, 16],
+    }});
+
+    var avatarMarker = null;
+
+    // Populate Step Dropdown and Drawer List
+    var stepSelect = document.getElementById('hud-step-select');
+    var drawerList = document.getElementById('drawer-step-list');
+
+    navSteps.forEach(function(s, idx) {{
+      var opt = document.createElement('option');
+      opt.value = idx;
+      opt.textContent = 'Step ' + s.step + ': ' + (s.action || 'STEP').replace(/_/g, ' ');
+      stepSelect.appendChild(opt);
+
+      var item = document.createElement('div');
+      item.className = 'drawer-step-item' + (idx === 0 ? ' active' : '');
+      item.id = 'drawer-item-' + idx;
+      item.innerHTML = '<div class="drawer-step-header">' +
+        '<span>STEP ' + s.step + ' • ' + (s.action || 'STEP').replace(/_/g, ' ') + '</span>' +
+        '<span>' + (s.distance_m ? Math.round(s.distance_m) + 'm' : '') + '</span>' +
+        '</div>' +
+        '<div>' + s.spoken_instruction + '</div>';
+      item.onclick = function() {{
+        goToStep(idx, true);
+      }};
+      drawerList.appendChild(item);
+    }});
+
+    function getActionBadgeStyle(action) {{
+      switch(action) {{
+        case 'WALK_SIDEWALK': return {{ cls: 'action-walk', label: '🚶 WALK SIDEWALK' }};
+        case 'CROSS_STREET': return {{ cls: 'action-cross', label: '🚸 CROSS STREET' }};
+        case 'APPROACH_CURB': return {{ cls: 'action-curb-approach', label: '🛑 APPROACH CURB' }};
+        case 'EXIT_CURB': return {{ cls: 'action-curb-exit', label: '⬆️ EXIT CURB' }};
+        case 'ARRIVE': return {{ cls: 'action-arrive', label: '🎯 DESTINATION' }};
+        default: return {{ cls: 'action-walk', label: (action || 'WALK').replace(/_/g, ' ') }};
+      }}
+    }}
+
+    function speakCurrentInstruction() {{
+      if (!('speechSynthesis' in window)) return;
+      window.speechSynthesis.cancel();
+      var s = navSteps[currentStepIdx];
+      if (!s || !s.spoken_instruction) return;
+      var utter = new SpeechSynthesisUtterance(s.spoken_instruction);
+      utter.rate = 1.0;
+      window.speechSynthesis.speak(utter);
+    }}
+
+    function goToStep(idx, fromUserClick) {{
+      if (!navSteps || navSteps.length === 0) return;
+      if (idx < 0) idx = 0;
+      if (idx >= navSteps.length) idx = navSteps.length - 1;
+      currentStepIdx = idx;
+
+      var s = navSteps[currentStepIdx];
+      var total = navSteps.length;
+
+      // Update UI Header
+      document.getElementById('hud-step-pill').textContent = 'Step ' + (idx + 1) + ' of ' + total;
+      var badgeInfo = getActionBadgeStyle(s.action);
+      var badgeEl = document.getElementById('hud-action-badge');
+      badgeEl.className = 'action-badge ' + badgeInfo.cls;
+      badgeEl.textContent = badgeInfo.label;
+
+      // Distance chip
+      var distChip = document.getElementById('hud-dist-chip');
+      if (s.distance_m && s.distance_m > 0) {{
+        distChip.style.display = 'inline-flex';
+        distChip.textContent = '📏 ' + Math.round(s.distance_m) + 'm';
+      }} else {{
+        distChip.style.display = 'none';
+      }}
+
+      // Tactile chip
+      var tactileChip = document.getElementById('hud-tactile-chip');
+      if (s.tactile_cue) {{
+        tactileChip.style.display = 'inline-flex';
+        tactileChip.textContent = '📳 Tactile Warning Domes';
+      }} else {{
+        tactileChip.style.display = 'none';
+      }}
+
+      // Turn chip
+      var turnChip = document.getElementById('hud-turn-chip');
+      if (s.turn_direction || s.clock_position) {{
+        turnChip.style.display = 'inline-flex';
+        turnChip.textContent = (s.clock_position ? s.clock_position + ' ' : '') + (s.turn_direction ? '(' + s.turn_direction + ')' : '');
+      }} else {{
+        turnChip.style.display = 'none';
+      }}
+
+      // Instruction text
+      document.getElementById('hud-speech-text').textContent = s.spoken_instruction;
+
+      // Progress bar
+      var pct = Math.round(((idx + 1) / total) * 100);
+      document.getElementById('hud-progress-fill').style.width = pct + '%';
+
+      // Controls state
+      document.getElementById('btn-prev').disabled = (idx === 0);
+      document.getElementById('btn-first').disabled = (idx === 0);
+      document.getElementById('btn-next').disabled = (idx === total - 1);
+      document.getElementById('btn-last').disabled = (idx === total - 1);
+      stepSelect.value = idx;
+
+      // Drawer items state
+      for (var i = 0; i < total; i++) {{
+        var el = document.getElementById('drawer-item-' + i);
+        if (el) {{
+          if (i === idx) {{
+            el.className = 'drawer-step-item active';
+            el.scrollIntoView({{ behavior: 'smooth', block: 'nearest' }});
+          }} else {{
+            el.className = 'drawer-step-item';
+          }}
+        }}
+      }}
+
+      // Map Coordinate Resolution
+      var coord = s.coordinate;
+      if (!coord || (coord[0] === 0 && coord[1] === 0)) {{
+        coord = [{start_pt[0]}, {start_pt[1]}];
+      }}
+
+      // 1. Move Pedestrian Avatar
+      if (!avatarMarker) {{
+        avatarMarker = L.marker([coord[0], coord[1]], {{ icon: avatarIcon, zIndexOffset: 2000 }}).addTo(map);
+      }} else {{
+        avatarMarker.setLatLng([coord[0], coord[1]]);
+      }}
+
+      // 2. Highlight Active Segment Geometry
+      if (activeStepPolyline) {{
+        map.removeLayer(activeStepPolyline);
+        activeStepPolyline = null;
+      }}
+      if (activeStepMarker) {{
+        map.removeLayer(activeStepMarker);
+        activeStepMarker = null;
+      }}
+
+      if (s.coordinates && s.coordinates.length >= 2) {{
+        var latLngs = s.coordinates.map(function(c) {{ return [c[0], c[1]]; }});
+        activeStepPolyline = L.polyline(latLngs, {{
+          color: '#38bdf8',
+          weight: 9,
+          opacity: 0.9,
+          lineCap: 'round',
+          lineJoin: 'round',
+        }}).addTo(map);
+      }} else {{
+        activeStepMarker = L.circleMarker([coord[0], coord[1]], {{
+          radius: 12,
+          color: '#38bdf8',
+          fillColor: '#38bdf8',
+          fillOpacity: 0.35,
+          weight: 3,
+        }}).addTo(map);
+      }}
+
+      // 3. Pan / Zoom Map to active step with padding for the bottom HUD
+      map.panTo([coord[0], coord[1]], {{ animate: true, duration: 0.5 }});
+
+      // 4. Auto-Speak if enabled
+      if (document.getElementById('auto-speak-toggle').checked && fromUserClick) {{
+        speakCurrentInstruction();
+      }}
+    }}
+
+    // Button event listeners
+    document.getElementById('btn-next').onclick = function() {{ goToStep(currentStepIdx + 1, true); }};
+    document.getElementById('btn-prev').onclick = function() {{ goToStep(currentStepIdx - 1, true); }};
+    document.getElementById('btn-first').onclick = function() {{ goToStep(0, true); }};
+    document.getElementById('btn-last').onclick = function() {{ goToStep(navSteps.length - 1, true); }};
+    document.getElementById('btn-speak').onclick = speakCurrentInstruction;
+
+    stepSelect.onchange = function(e) {{
+      goToStep(parseInt(e.target.value, 10), true);
+    }};
+
+    // Auto-play walkthrough toggle
+    var autoPlayBtn = document.getElementById('btn-autoplay');
+    var autoPlayIcon = document.getElementById('autoplay-icon');
+    function toggleAutoPlay() {{
+      if (autoPlayTimer) {{
+        clearInterval(autoPlayTimer);
+        autoPlayTimer = null;
+        autoPlayBtn.classList.remove('active');
+        autoPlayIcon.textContent = '▶️';
+      }} else {{
+        autoPlayBtn.classList.add('active');
+        autoPlayIcon.textContent = '⏸️';
+        if (currentStepIdx >= navSteps.length - 1) {{
+          goToStep(0, true);
+        }}
+        autoPlayTimer = setInterval(function() {{
+          if (currentStepIdx < navSteps.length - 1) {{
+            goToStep(currentStepIdx + 1, true);
+          }} else {{
+            toggleAutoPlay();
+          }}
+        }}, 3600);
+      }}
+    }}
+    autoPlayBtn.onclick = toggleAutoPlay;
+
+    // Drawer toggle
+    var drawer = document.getElementById('nav-drawer');
+    var toggleDrawerBtn = document.getElementById('btn-toggle-drawer');
+    var closeDrawerBtn = document.getElementById('btn-close-drawer');
+    function toggleDrawer() {{
+      var isVisible = drawer.style.display === 'flex';
+      drawer.style.display = isVisible ? 'none' : 'flex';
+      toggleDrawerBtn.classList.toggle('active', !isVisible);
+    }}
+    toggleDrawerBtn.onclick = toggleDrawer;
+    closeDrawerBtn.onclick = toggleDrawer;
+
+    // Keyboard navigation
+    window.addEventListener('keydown', function(e) {{
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
+      if (e.key === 'ArrowRight' || e.key === 'Enter') {{
+        goToStep(currentStepIdx + 1, true);
+      }} else if (e.key === 'ArrowLeft') {{
+        goToStep(currentStepIdx - 1, true);
+      }} else if (e.key === 'Home') {{
+        goToStep(0, true);
+      }} else if (e.key === 'End') {{
+        goToStep(navSteps.length - 1, true);
+      }} else if (e.key === ' ') {{
+        e.preventDefault();
+        toggleAutoPlay();
+      }}
+    }});
+
+    // Initialize to step 0
+    if (navSteps.length > 0) {{
+      goToStep(0, false);
+    }}
   </script>
 </body>
 </html>
