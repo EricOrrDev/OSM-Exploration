@@ -234,6 +234,8 @@ class GeoJSONExporter:
                     if not next_edge or next_edge.feature_type != "sidewalk":
                         sw_idx += 1
 
+                is_br = getattr(sw, "is_bridge", False) if sw else False
+                stroke_color = "#0D9488" if is_br else "#10B981"
                 features.append({
                     "type": "Feature",
                     "id": f"segment_{i}_sidewalk",
@@ -245,13 +247,14 @@ class GeoJSONExporter:
                         "feature_type": "route_segment",
                         "segment_type": "sidewalk",
                         "edge_index": i,
-                        "street_name": sw.name if sw else "sidewalk",
+                        "street_name": sw.name if sw else ("bridge walkway" if is_br else "sidewalk"),
                         "length_m": edge.length_m,
                         "surface": sw.surface if sw else "concrete",
                         "has_tactile_paving": sw.has_tactile_paving if sw else False,
                         "spoken_instruction": inst.get("spoken_instruction") if inst else None,
-                        "stroke": "#10B981",  # Emerald green for sidewalks
-                        "stroke-width": 4,
+                        "is_bridge": is_br,
+                        "stroke": stroke_color,
+                        "stroke-width": 5 if is_br else 4,
                     },
                 })
 
@@ -570,6 +573,61 @@ class GeoJSONExporter:
         nodes = network.raw_nodes
         start_pt = nodes.get(route.node_path[0], (44.045, -121.331)) if route.node_path else (44.045, -121.331)
 
+        # Dynamically build legend items based on features actually present in the route
+        features_list = geojson_dict.get("features", [])
+        has_sidewalk = any(
+            f.get("properties", {}).get("segment_type") == "sidewalk"
+            and not f.get("properties", {}).get("is_bridge")
+            for f in features_list
+        )
+        has_bridge = any(
+            f.get("properties", {}).get("is_bridge")
+            for f in features_list
+        )
+        has_street_crossing = any(
+            f.get("properties", {}).get("segment_type") == "crosswalk"
+            and f.get("properties", {}).get("stroke") == "#F59E0B"
+            for f in features_list
+        )
+        has_roundabout = any(
+            f.get("properties", {}).get("segment_type") == "crosswalk"
+            and f.get("properties", {}).get("stroke") == "#7C3AED"
+            for f in features_list
+        )
+        has_driveway = any(
+            f.get("properties", {}).get("segment_type") == "crosswalk"
+            and f.get("properties", {}).get("stroke") == "#DC2626"
+            for f in features_list
+        )
+        has_tactile_curb = any(
+            f.get("properties", {}).get("feature_type") == "curb_ramp"
+            and f.get("properties", {}).get("has_tactile_paving")
+            for f in features_list
+        )
+        has_standard_curb = any(
+            f.get("properties", {}).get("feature_type") == "curb_ramp"
+            and not f.get("properties", {}).get("has_tactile_paving")
+            for f in features_list
+        )
+
+        legend_items = []
+        if has_sidewalk:
+            legend_items.append('<div class="legend-item"><div class="legend-color" style="background:#10B981;"></div> Sidewalk Corridor</div>')
+        if has_bridge:
+            legend_items.append('<div class="legend-item"><div class="legend-color" style="background:#0D9488;"></div> Bridge Walkway</div>')
+        if has_street_crossing:
+            legend_items.append('<div class="legend-item"><div class="legend-color" style="background:#F59E0B; border-top: 2px dashed #F59E0B;"></div> Public Street Crossing</div>')
+        if has_roundabout:
+            legend_items.append('<div class="legend-item"><div class="legend-color" style="background:#7C3AED; border-top: 2px dashed #7C3AED;"></div> Roundabout Crossing</div>')
+        if has_driveway:
+            legend_items.append('<div class="legend-item"><div class="legend-color" style="background:#DC2626; border-top: 2px dashed #DC2626;"></div> Commercial Driveway</div>')
+        if has_tactile_curb:
+            legend_items.append('<div class="legend-item"><div class="legend-dot" style="background:#8B5CF6;"></div> Curb Ramp (Tactile Domes)</div>')
+        if has_standard_curb:
+            legend_items.append('<div class="legend-item"><div class="legend-dot" style="background:#64748B;"></div> Curb Cut (No Tactile)</div>')
+
+        legend_html = "\n      ".join(legend_items) if legend_items else '<div class="legend-item"><div class="legend-color" style="background:#10B981;"></div> Sidewalk Corridor</div>'
+
         html_content = f"""<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -639,6 +697,13 @@ class GeoJSONExporter:
       height: 4px;
       border-radius: 2px;
     }}
+    .legend-dot {{
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      border: 1.5px solid #ffffff;
+      flex-shrink: 0;
+    }}
     .leaflet-popup-content-wrapper {{
       background: #1e293b;
       color: #f8fafc;
@@ -698,10 +763,7 @@ class GeoJSONExporter:
       <span class="stat-value">{len(route.edges)} steps</span>
     </div>
     <div class="legend">
-      <div class="legend-item"><div class="legend-color" style="background:#10B981;"></div> Sidewalk Corridor</div>
-      <div class="legend-item"><div class="legend-color" style="background:#F59E0B; border-top: 2px dashed #F59E0B;"></div> Public Street Crossing</div>
-      <div class="legend-item"><div class="legend-color" style="background:#DC2626; border-top: 2px dashed #DC2626;"></div> Commercial Driveway (Safeway)</div>
-      <div class="legend-item"><div class="legend-color" style="background:#7C3AED; border-top: 2px dashed #7C3AED;"></div> Roundabout Slip Lane (Innovation Way)</div>
+      {legend_html}
     </div>
   </div>
 
@@ -799,7 +861,7 @@ class GeoJSONExporter:
             weight: 2,
             opacity: 1,
             fillOpacity: 0.95
-          }}).bindPopup('<b>Destination: Safeway</b>');
+          }}).bindPopup('<b>Destination</b>');
         }}
         if (p.feature_type === 'curb_ramp') {{
           var color = p.has_tactile_paving ? '#8B5CF6' : '#64748B';
