@@ -1,1 +1,1 @@
-"""Tests package for OSMExploration."""
+"""Tests package for NavigationEngine."""

@@ -151,9 +151,16 @@ class AudioGuidanceGenerator:
                         f"Cross {cw_name}{markings} for {edge.length_m:.0f} meters.{aps_info}{island_info}"
                     )
 
+                # Append multi-source data conflict / anomaly warning if detected
+                has_anomaly = getattr(cw, "has_data_anomaly", False) or getattr(edge, "has_data_anomaly", False)
+                if has_anomaly:
+                    anomaly = getattr(cw, "data_anomaly", None)
+                    caution_msg = getattr(anomaly, "spoken_caution_cue", "Proceed with elevated caution: Inconsistent data between map sources for this crossing.")
+                    crossing_speech += f" {caution_msg}"
+
                 cw_pts = [list(c) for c in cw.coordinates] if (cw and len(cw.coordinates) >= 2) else [list(nodes.get(edge.u, (0.0, 0.0))), list(nodes.get(edge.v, (0.0, 0.0)))]
                 mid_cw = [(cw_pts[0][0] + cw_pts[-1][0]) / 2.0, (cw_pts[0][1] + cw_pts[-1][1]) / 2.0] if cw_pts else [0.0, 0.0]
-                instructions.append({
+                inst_entry = {
                     "step": step_num,
                     "action": "CROSS_STREET",
                     "distance_m": edge.length_m,
@@ -167,7 +174,10 @@ class AudioGuidanceGenerator:
                     "corridor_street": ctx.corridor_street,
                     "coordinate": mid_cw,
                     "coordinates": cw_pts,
-                })
+                }
+                if has_anomaly:
+                    inst_entry["data_anomaly"] = True
+                instructions.append(inst_entry)
                 step_num += 1
 
                 # Resolve exit kerb

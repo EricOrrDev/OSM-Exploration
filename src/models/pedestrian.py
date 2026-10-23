@@ -1,7 +1,7 @@
 """Pydantic models for pedestrian infrastructure based on OpenSidewalks schema."""
 
-from typing import Dict, List, Optional, Tuple, Union
-from pydantic import BaseModel, Field
+from typing import Any, Dict, List, Optional, Tuple, Union
+from pydantic import BaseModel, ConfigDict, Field
 
 # =============================================================================
 # HAZARD & ACCESSIBILITY WEIGHTS (CENTRALIZED CONTROLS)
@@ -66,6 +66,8 @@ def configure_hazard_weights(**kwargs: float) -> HazardMetricWeights:
 class CrosswalkFeature(BaseModel):
     """Represents a marked or unmarked street crossing corridor."""
 
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
     id: int
     name: Optional[str] = None
     node_ids: List[int] = Field(default_factory=list)
@@ -81,6 +83,8 @@ class CrosswalkFeature(BaseModel):
     intersection_type: Optional[str] = None  # fourway, t, roundabout, midblock
     road_crossed: Optional[str] = None       # Name or code of road being crossed
     lanes_crossed: Optional[int] = None      # Number of vehicular lanes crossed
+    has_data_anomaly: bool = False           # Flagged if multi-source data conflict detected
+    data_anomaly: Optional[Any] = None       # Detailed DataAnomaly metadata
 
     @property
     def safety_score(self) -> float:

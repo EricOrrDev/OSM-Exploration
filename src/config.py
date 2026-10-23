@@ -1,4 +1,4 @@
-"""Configuration settings for OpenStreetMap Pedestrian Exploration."""
+"""Configuration settings for NavigationEngine Pedestrian Navigation."""
 
 import os
 from pathlib import Path
@@ -8,11 +8,10 @@ from dotenv import load_dotenv
 BASE_DIR = Path(__file__).resolve().parent.parent
 FIXTURES_DIR = BASE_DIR / "fixtures"
 
-# Load .env from multiple potential locations (OSMExploration, parent Capstone, adjacent dirs)
+# Load .env from multiple potential locations (NavigationEngine, parent Capstone, adjacent dirs)
 load_dotenv(Path.cwd() / ".env")
 load_dotenv(BASE_DIR / ".env")
 load_dotenv(BASE_DIR.parent / ".env")
-load_dotenv(BASE_DIR.parent / "GoogleMapsExploration" / ".env")
 load_dotenv()
 
 # CARTO API Key for basemap tile authentication

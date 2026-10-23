@@ -1,4 +1,4 @@
-"""CLI entrypoint for OpenStreetMap Pedestrian Accessibility & Routing Engine."""
+"""CLI entrypoint for NavigationEngine Pedestrian Accessibility & Routing Engine."""
 
 import argparse
 import sys

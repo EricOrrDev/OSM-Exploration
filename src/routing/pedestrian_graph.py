@@ -51,6 +51,7 @@ class PedestrianEdge:
     feature_type: str  # "crosswalk" or "sidewalk"
     crosswalk: Optional[CrosswalkFeature] = None
     sidewalk: Optional[SidewalkFeature] = None
+    has_data_anomaly: bool = False
 
 
 @dataclass
@@ -94,6 +95,7 @@ class PedestrianGraph:
         feature_type: str,
         cw: Optional[CrosswalkFeature] = None,
         sw: Optional[SidewalkFeature] = None,
+        has_data_anomaly: bool = False,
     ) -> None:
         edge = PedestrianEdge(
             u=u,
@@ -103,6 +105,7 @@ class PedestrianGraph:
             feature_type=feature_type,
             crosswalk=cw,
             sidewalk=sw,
+            has_data_anomaly=has_data_anomaly or (getattr(cw, "has_data_anomaly", False) if cw else False),
         )
         self.adj.setdefault(u, []).append(edge)
 
@@ -139,7 +142,7 @@ class PedestrianGraph:
                 from ..spatial.gpkg_registry import LayerRole
                 match = self.registry.find_nearest(centroid[0], centroid[1], role=LayerRole.CROSSWALK, max_dist_m=20.0)
                 if match:
-                    feat, _ = match
+                    feat, dist_m = match
                     itype = str(feat.attributes.get("IntersectionType") or "").lower()
                     gid = str(feat.attributes.get("GlobalID") or "").upper()
                     if itype in ("rab1", "rab2", "roundabout"):
@@ -148,10 +151,24 @@ class PedestrianGraph:
                     if str(feat.attributes.get("AreaRefuge") or "").upper() == "YES":
                         has_refuge = True
                         cw.has_refuge_island = True
-                    if str(feat.attributes.get("CrosswalkType") or "").lower() == "marked":
+                    gis_cw_type = str(feat.attributes.get("CrosswalkType") or "").lower()
+                    gis_is_marked = (gis_cw_type == "marked") if gis_cw_type else None
+                    if gis_is_marked:
                         is_marked = True
                     if "{ECFA0F9D-248C-4AC1-92EF-CC29529F00C8}" in gid:
                         is_target_preferred = True
+
+                    # Detect data conflicts across sources (e.g. geometric offset or attribute conflict)
+                    anomaly = self.weights.anomaly.detect_crossing_conflict(
+                        osm_marked=is_marked,
+                        gis_marked=gis_is_marked,
+                        osm_signals=cw.has_signals,
+                        gis_signals=None,
+                        spatial_dist_m=dist_m,
+                    )
+                    if anomaly:
+                        cw.has_data_anomaly = True
+                        cw.data_anomaly = anomaly
 
             for i in range(len(nids) - 1):
                 u, v = nids[i], nids[i + 1]
@@ -168,6 +185,7 @@ class PedestrianGraph:
                         is_roundabout=is_rab,
                         has_tactile_paving=cw.has_tactile_paving,
                         kerb_features=kerb_list,
+                        has_data_anomaly=getattr(cw, "has_data_anomaly", False),
                     )
                     weight = dist * multiplier
                     # Bidirectional
