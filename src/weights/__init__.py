@@ -35,6 +35,7 @@ from .verbiage import (
     ClockGranularity,
     CurveVerbiagePreset,
     DirectionMode,
+    DistanceUnit,
     GuidanceVerbiageConfig,
 )
 
@@ -50,6 +51,7 @@ __all__ = [
     "DataAnomaly",
     "DataAnomalyType",
     "DirectionMode",
+    "DistanceUnit",
     "GuidanceVerbiageConfig",
     "HAZARD_WEIGHTS",
     "HazardMetricWeights",

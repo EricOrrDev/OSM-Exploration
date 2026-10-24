@@ -24,6 +24,7 @@ from .verbiage import (
     ClockGranularity,
     CurveVerbiagePreset,
     DirectionMode,
+    DistanceUnit,
     GuidanceVerbiageConfig,
 )
 
@@ -376,6 +377,10 @@ def configure_guidance_verbiage(
     curve_template: Optional[str] = None,
     turn_degree_template: Optional[str] = None,
     turn_clock_template: Optional[str] = None,
+    distance_unit: Optional[DistanceUnit] = None,
+    stride_length_m: Optional[float] = None,
+    pace_margin: Optional[int] = None,
+    pace_unit_noun: Optional[str] = None,
 ) -> GuidanceVerbiageConfig:
     """Helper function to update verbiage and direction mode in the centralized default instance."""
     v = DEFAULT_SAFETY_WEIGHTS.verbiage
@@ -391,4 +396,12 @@ def configure_guidance_verbiage(
         v.turn_degree_template = turn_degree_template
     if turn_clock_template is not None:
         v.turn_clock_template = turn_clock_template
+    if distance_unit is not None:
+        v.distance_unit = distance_unit
+    if stride_length_m is not None:
+        v.stride_length_m = stride_length_m
+    if pace_margin is not None:
+        v.pace_margin = pace_margin
+    if pace_unit_noun is not None:
+        v.pace_unit_noun = pace_unit_noun
     return v

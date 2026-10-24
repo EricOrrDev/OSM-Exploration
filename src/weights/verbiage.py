@@ -33,13 +33,26 @@ class CurveVerbiagePreset(str, Enum):
     CUSTOM = "custom"    # User-defined format template
 
 
+class DistanceUnit(str, Enum):
+    """Unit of distance measurement for spoken navigation instructions."""
+    METERS = "meters"
+    PACES = "paces"
+    STRIDES = "strides"
+
+
 @dataclass
 class GuidanceVerbiageConfig:
-    """User-configurable guidance verbiage and direction output preferences."""
+    """User-configurable guidance verbiage, distance units, and direction output preferences."""
 
     # Direction output format (Degrees in 15° steps vs Clock face)
     direction_mode: DirectionMode = DirectionMode.DEGREES
     clock_granularity: ClockGranularity = ClockGranularity.HOURLY
+
+    # Distance unit & stride preferences
+    distance_unit: DistanceUnit = DistanceUnit.METERS
+    stride_length_m: float = 0.75  # Average human walking stride in meters
+    pace_margin: int = 0           # Buffer added to range (e.g. 0 -> '3 to 4', 1 -> '3 to 5')
+    pace_unit_noun: str = "strides"  # "strides" or "paces"
 
     # Curve announcement style
     curve_preset: CurveVerbiagePreset = CurveVerbiagePreset.SWEEP
@@ -48,6 +61,37 @@ class GuidanceVerbiageConfig:
     # Spoken templates
     turn_degree_template: str = "Turn {angle} degrees {direction}, then follow {target} for {distance:.0f} meters."
     turn_clock_template: str = "Turn to {clock}, then follow {target} for {distance:.0f} meters."
+
+    def format_distance(self, distance_m: float) -> str:
+        """Format a metric distance according to active distance unit (meters vs paces/strides).
+
+        When distance_unit is PACES or STRIDES:
+        - Never gives fractional strides (no decimals like 3.49).
+        - Returns a natural integer range (e.g. '3 to 4 strides').
+        - Supports an optional user-configured margin (e.g. '3 to 5 strides').
+        """
+        if self.distance_unit == DistanceUnit.METERS:
+            d_round = round(distance_m)
+            if d_round == 1:
+                return "1 meter"
+            return f"{d_round} meters"
+
+        stride_len = self.stride_length_m if self.stride_length_m > 0 else 0.75
+        raw_paces = distance_m / stride_len
+        low = max(1, math.floor(raw_paces))
+        high = max(1, math.ceil(raw_paces))
+        noun = self.pace_unit_noun or ("paces" if self.distance_unit == DistanceUnit.PACES else "strides")
+        margin = max(0, int(self.pace_margin))
+        high_with_margin = high + margin
+
+        if low == high:
+            if margin > 0:
+                return f"{low} to {high_with_margin} {noun}"
+            else:
+                single_noun = noun[:-1] if noun.endswith("s") and low == 1 else noun
+                return f"{low} {single_noun}"
+        else:
+            return f"{low} to {high_with_margin} {noun}"
 
     def angle_to_clock(self, signed_angle_deg: float, granularity: Optional[ClockGranularity] = None) -> str:
         """Convert a signed turn angle (-180° to +180°) into a clock face direction."""
@@ -86,19 +130,27 @@ class GuidanceVerbiageConfig:
         name: Optional[str] = None,
     ) -> str:
         """Format spoken instruction for curving / sweeping path segments."""
-        if self.curve_preset == CurveVerbiagePreset.SWEEP:
-            template = self.curve_template or "Sweep {direction} for {distance:.0f} meters."
-        elif self.curve_preset == CurveVerbiagePreset.CURVING:
-            template = "Follow the curving sidewalk to the {direction} for {distance:.0f} meters."
-        elif self.curve_preset == CurveVerbiagePreset.BEAR:
-            template = "Bear {direction} for {distance:.0f} meters."
-        else:
-            template = self.curve_template or "Sweep {direction} for {distance:.0f} meters."
-
+        dist_str = self.format_distance(distance_m)
         target = name if name else "sidewalk"
+
+        if self.curve_preset == CurveVerbiagePreset.SWEEP:
+            template = self.curve_template or "Sweep {direction} for {distance}."
+        elif self.curve_preset == CurveVerbiagePreset.CURVING:
+            template = "Follow the curving sidewalk to the {direction} for {distance}."
+        elif self.curve_preset == CurveVerbiagePreset.BEAR:
+            template = "Bear {direction} for {distance}."
+        else:
+            template = self.curve_template or "Sweep {direction} for {distance}."
+
+        if "{distance:.0f} meters" in template:
+            if self.distance_unit == DistanceUnit.METERS:
+                return template.format(direction=direction, distance=distance_m, target=target, name=target)
+            else:
+                template = template.replace("{distance:.0f} meters", "{distance}")
+
         return template.format(
             direction=direction,
-            distance=distance_m,
+            distance=dist_str,
             target=target,
             name=target,
         )
@@ -115,20 +167,31 @@ class GuidanceVerbiageConfig:
         signed_angle = angle_deg if direction == "right" else -angle_deg
         raw = raw_angle if raw_angle is not None else float(signed_angle)
         clock_pos = self.angle_to_clock(raw)
+        dist_str = self.format_distance(distance_m)
+
+        deg_tpl = self.turn_degree_template
+        clk_tpl = self.turn_clock_template
+
+        if self.distance_unit != DistanceUnit.METERS:
+            deg_tpl = deg_tpl.replace("{distance:.0f} meters", "{distance}").replace("{distance} meters", "{distance}")
+            clk_tpl = clk_tpl.replace("{distance:.0f} meters", "{distance}").replace("{distance} meters", "{distance}")
+            dist_val: Any = dist_str
+        else:
+            dist_val = distance_m if "{distance:" in deg_tpl else dist_str
 
         if self.direction_mode == DirectionMode.CLOCK:
-            speech = self.turn_clock_template.format(
+            speech = clk_tpl.format(
                 clock=clock_pos,
                 target=target,
-                distance=distance_m,
+                distance=dist_val,
                 direction=direction,
             )
         else:
-            speech = self.turn_degree_template.format(
+            speech = deg_tpl.format(
                 angle=angle_deg,
                 direction=direction,
                 target=target,
-                distance=distance_m,
+                distance=dist_val,
                 clock=clock_pos,
             )
 

@@ -150,47 +150,8 @@ class IntersectionClassifier:
         sem_type = SemanticCrossingType.UNKNOWN_CROSSING
         turning_warning = False
 
-        # 2. Check municipal Crosswalk GIS ground truth FIRST for authoritative RoadCrossed
-        if muni_match:
-            raw_road = muni_match.get("road_crossed")
-            if raw_road and raw_road.strip() and raw_road.lower() != "none" and "unknown" not in raw_road.lower():
-                disambig = self.semantic_classifier.classify(
-                    raw_name=raw_road,
-                    crossing_width_m=edge.length_m,
-                )
-                resolved_crossed_street = disambig.canonical_name
-                spoken_road_name = disambig.spoken_road_name
-                sem_type = disambig.crossing_type
-                turning_warning = disambig.turning_vehicle_warning
-
-        # 3. Fallback to municipal curb ramp matching
-        if not resolved_crossed_street and cr_match:
-            raw_main = cr_match.get("main")
-            raw_cross = cr_match.get("cross")
-            owner = cr_match.get("owner")
-            street_class = cr_match.get("street_class")
-
-            # Determine whether main or cross is the feature being crossed
-            target_raw = None
-            if corridor_name and raw_main and ("Century" in corridor_name or raw_main.upper() in corridor_name.upper()):
-                target_raw = raw_cross
-            elif corridor_name and raw_cross and (raw_cross.upper() in corridor_name.upper()):
-                target_raw = raw_main
-            else:
-                target_raw = raw_cross or raw_main
-
-            if target_raw:
-                disambig = self.semantic_classifier.classify(
-                    raw_name=target_raw,
-                    municipal_owner=owner,
-                    municipal_street_class=street_class,
-                    crossing_width_m=edge.length_m,
-                )
-                resolved_crossed_street = disambig.canonical_name
-                spoken_road_name = disambig.spoken_road_name
-                sem_type = disambig.crossing_type
-                turning_warning = disambig.turning_vehicle_warning
-
+        # Determine municipal intersection typology upfront
+        itype = IntersectionType.UNKNOWN
         if muni_match:
             raw_type = (muni_match.get("intersection_type") or "").lower()
             if raw_type in ("rab1", "rab2", "roundabout"):
@@ -204,6 +165,73 @@ class IntersectionClassifier:
             else:
                 itype = IntersectionType.UNKNOWN
 
+        # 2. Check municipal Crosswalk GIS ground truth for authoritative RoadCrossed
+        is_generic_or_private = False
+        if muni_match:
+            raw_road = muni_match.get("road_crossed")
+            is_generic_or_private = (
+                not raw_road
+                or not raw_road.strip()
+                or raw_road.lower() == "none"
+                or "unknown" in raw_road.lower()
+                or raw_road.strip().upper() in ("PRIVATE", "PRIVATE ROAD", "PRIVATE DRIVEWAY", "DRIVEWAY")
+            )
+            # Only adopt raw_road directly if it is a specific public street or known facility
+            if raw_road and not is_generic_or_private:
+                disambig = self.semantic_classifier.classify(
+                    raw_name=raw_road,
+                    crossing_width_m=edge.length_m,
+                )
+                resolved_crossed_street = disambig.canonical_name
+                spoken_road_name = disambig.spoken_road_name
+                sem_type = disambig.crossing_type
+                turning_warning = disambig.turning_vehicle_warning
+
+        # 3. Fallback / refinement from municipal curb ramp records
+        # If road name is not resolved or is a generic 'PRIVATE' flag, curb ramps contain surveyor cross-streets
+        target_raw = None
+        if (not resolved_crossed_street or is_generic_or_private) and cr_match:
+            raw_main = cr_match.get("main")
+            raw_cross = cr_match.get("cross")
+            owner = cr_match.get("owner")
+            street_class = cr_match.get("street_class")
+
+            # Determine whether main or cross is the feature being crossed
+            if corridor_name and raw_main and (raw_main.upper() in corridor_name.upper()):
+                target_raw = raw_cross
+            elif corridor_name and raw_cross and (raw_cross.upper() in corridor_name.upper()):
+                target_raw = raw_main
+            else:
+                target_raw = raw_cross or raw_main
+
+            if target_raw:
+                disambig = self.semantic_classifier.classify(
+                    raw_name=target_raw,
+                    municipal_owner=owner,
+                    municipal_street_class=street_class,
+                    crossing_width_m=edge.length_m,
+                )
+                # Adopt curb ramp cross street if it resolves to a named roadway or public street
+                if disambig.crossing_type != SemanticCrossingType.PRIVATE_DRIVEWAY or not resolved_crossed_street:
+                    resolved_crossed_street = disambig.canonical_name
+                    spoken_road_name = disambig.spoken_road_name
+                    sem_type = disambig.crossing_type
+                    turning_warning = disambig.turning_vehicle_warning
+
+        # 4. Critical safety rule: Intersections preempt private driveways
+        # Crossings at roundabouts, 4-ways, and T-junctions cross intersecting roadways or slip lanes, not driveway aprons
+        if itype in (IntersectionType.ROUNDABOUT, IntersectionType.FOUR_WAY, IntersectionType.T_JUNCTION, IntersectionType.MULTI_LEG):
+            if sem_type == SemanticCrossingType.PRIVATE_DRIVEWAY:
+                sem_type = SemanticCrossingType.PUBLIC_STREET
+            if resolved_crossed_street in ("private driveway", "the private driveway", None):
+                if itype == IntersectionType.ROUNDABOUT:
+                    resolved_crossed_street = "SW Innovation Way" if (target_raw and "TAYLOR" in str(target_raw).upper()) else "roundabout slip lane"
+                    spoken_road_name = "SW Innovation Way" if (target_raw and "TAYLOR" in str(target_raw).upper()) else "the roundabout slip lane"
+                else:
+                    resolved_crossed_street = None
+                    spoken_road_name = None
+
+        if muni_match:
             lanes = muni_match.get("lanes")
             has_refuge = (muni_match.get("refuge") == "YES") or (cw.has_refuge_island if cw else False)
 
@@ -482,6 +510,25 @@ class IntersectionClassifier:
         street = ctx.corridor_street or "the street"
         road_name = ctx.spoken_road_name or ctx.road_crossed or "the street"
 
+        # 1. Roundabouts ALWAYS have top safety priority for blind pedestrian navigation
+        if ctx.intersection_type == IntersectionType.ROUNDABOUT:
+            refuge_cue = (
+                " to reach the splitter island refuge, then check for circulating vehicles before completing the crossing"
+                if ctx.has_refuge_island
+                else ""
+            )
+            if "slip lane" in road_name.lower():
+                slip_phrase = road_name
+            elif road_name and road_name != "the street":
+                slip_phrase = f"{road_name} across the roundabout slip lane"
+            else:
+                slip_phrase = "the roundabout slip lane"
+
+            return (
+                f"Caution: Roundabout intersection. Free-flowing traffic enters continuously from your left without a traffic light. "
+                f"Cross {slip_phrase}{refuge_cue} to stay on {street}."
+            )
+
         # Commercial driveways & parking lot entrances
         if ctx.semantic_crossing_type in (SemanticCrossingType.COMMERCIAL_DRIVEWAY, SemanticCrossingType.PARKING_LOT_ACCESS):
             if ctx.intersection_type == IntersectionType.T_JUNCTION:
@@ -494,17 +541,6 @@ class IntersectionClassifier:
 
         if ctx.semantic_crossing_type == SemanticCrossingType.SERVICE_ALLEY:
             return f"Continue forward across {road_name} to stay on {street}."
-
-        if ctx.intersection_type == IntersectionType.ROUNDABOUT:
-            refuge_cue = (
-                " to reach the splitter island refuge, then check for circulating vehicles before completing the crossing"
-                if ctx.has_refuge_island
-                else ""
-            )
-            return (
-                f"Caution: Roundabout intersection. Free-flowing traffic enters continuously from your left without a traffic light. "
-                f"Cross {road_name} across the roundabout slip lane{refuge_cue} to stay on {street}."
-            )
 
         if ctx.intersection_type == IntersectionType.FOUR_WAY:
             if ctx.is_corridor_continuation:

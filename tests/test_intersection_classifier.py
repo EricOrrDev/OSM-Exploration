@@ -146,9 +146,11 @@ def test_intersection_classifier_resolves_cross_streets():
 
     assert "SW Donovan Avenue" in crossed_roads
     assert "SW Century Drive" in crossed_roads
+    assert "SW Innovation Way" in crossed_roads
     assert "South Safeway commercial driveway" in crossed_roads
     assert "Safeway commercial driveway" in crossed_roads
     assert "Safeway Drive" not in crossed_roads
+    assert "private driveway" not in crossed_roads
 
     # Check spoken summaries
     summaries = " ".join(ctx.spoken_summary for ctx in contexts)
@@ -157,3 +159,5 @@ def test_intersection_classifier_resolves_cross_streets():
     assert "South Safeway commercial driveway" in summaries
     assert "cross the Safeway commercial driveway" in summaries
     assert "cross Safeway Drive" not in summaries
+    assert "the private driveway" not in summaries
+    assert "Caution: Roundabout intersection" in summaries

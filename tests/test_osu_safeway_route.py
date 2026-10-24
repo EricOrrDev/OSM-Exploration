@@ -97,12 +97,16 @@ def test_osu_safeway_intersection_and_continuity_guidance():
     assert "SW Donovan Avenue" in spoken_text
     assert "SW Century Drive" in spoken_text
     assert "stay on SW Century Drive" in spoken_text or "continue along SW Century Drive" in spoken_text
-    assert "Roundabout intersection" not in spoken_text  # Cleanly conflated without false roundabout alert
+    assert "Roundabout intersection" in spoken_text  # Accurately alerts on Century & Innovation Way roundabout
+    assert "SW Innovation Way" in spoken_text
+    assert "splitter island refuge" in spoken_text
+    assert "private driveway" not in spoken_text
 
     # 2. Intersection classification metadata attached to crossing steps
     itypes = [inst.get("intersection_type") for inst in crossing_steps]
     assert "4-way intersection" in itypes
     assert "T-junction" in itypes
+    assert "roundabout" in itypes
 
     # 3. Explicit disambiguated street & commercial driveway naming (Safeway Driveway instead of Safeway Drive)
     assert "South Safeway commercial driveway" in spoken_text

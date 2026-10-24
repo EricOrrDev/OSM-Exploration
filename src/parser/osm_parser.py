@@ -31,7 +31,10 @@ class OSMParser:
                 lon = float(el["lon"])
                 raw_nodes[node_id] = (lat, lon)
                 tags = el.get("tags", {})
-                node_tags_map[node_id] = tags
+                if node_id not in node_tags_map:
+                    node_tags_map[node_id] = dict(tags)
+                elif tags:
+                    node_tags_map[node_id].update(tags)
 
                 # Curb nodes (must have explicit kerb tag or barrier=kerb, not bare highway=crossing)
                 if "kerb" in tags or tags.get("barrier") == "kerb":
@@ -102,6 +105,8 @@ class OSMParser:
                         has_signals = True
                     if n_tags.get("button_operated") == "yes":
                         has_button = True
+                    if n_tags.get("crossing:island") == "yes":
+                        has_island = True
 
                 crosswalks[way_id] = CrosswalkFeature(
                     id=way_id,
