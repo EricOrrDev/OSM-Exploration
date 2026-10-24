@@ -292,11 +292,45 @@ def run_cache_tiles(args: argparse.Namespace) -> None:
     print(f"  Storage Footprint: {stats['total_bytes'] / 1024:.1f} KB (~{stats['total_bytes'] / (1024*1024):.2f} MB)")
 
 
-def main() -> None:
-    parser = argparse.ArgumentParser(
-        description="OpenStreetMap Pedestrian Accessibility & Navigation Engine"
+def run_test_presets(args: argparse.Namespace) -> None:
+    """Run all 7 core prototype archetypes and corridor testing presets in batch."""
+    from scripts.run_testing_presets import run_testing_presets
+    from src.weights import RoutingPreference
+    pref = RoutingPreference(args.preference) if hasattr(args, "preference") and args.preference else RoutingPreference.BALANCED
+    out_dir = Path(args.output_dir) if getattr(args, "output_dir", None) else None
+    run_testing_presets(
+        output_dir=out_dir,
+        offline=getattr(args, "offline", True),
+        open_browser=getattr(args, "open", False),
+        preference=pref,
     )
-    subparsers = parser.add_subparsers(dest="command", help="Sub-commands")
+
+
+def run_gui(args: argparse.Namespace) -> None:
+    """Launch the Route Launcher GUI Dev Tool."""
+    dev_tool_src = PROJECT_ROOT.parent / "NavigationDevTool" / "src"
+    if str(dev_tool_src) not in sys.path and dev_tool_src.is_dir():
+        sys.path.insert(0, str(dev_tool_src))
+    from dev_tool.server import start_dev_server
+    start_dev_server(port=args.port, open_browser=not args.no_browser)
+
+
+def main() -> None:
+    epilog_text = """
+Common Examples:
+  python main.py route --preset osu-to-safeway    # Route Tykeson Hall to Safeway
+  python main.py route --preset century-chandler  # Test Roundabout prototype
+  python main.py test-presets --open              # Run all 7 testing presets & open catalog
+  python main.py gui                              # Launch interactive Web GUI Dev Tool
+  python main.py help route                       # View options for routing
+"""
+    parser = argparse.ArgumentParser(
+        prog="main.py",
+        description="NavigationEngine: Accessible Pedestrian Routing, Audio Guidance & Spatial Conflation",
+        epilog=epilog_text,
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
+    subparsers = parser.add_subparsers(dest="command", help="Available sub-commands")
 
     # Fetch
     fetch_p = subparsers.add_parser("fetch", help="Fetch & parse OSM pedestrian network")
@@ -351,12 +385,53 @@ def main() -> None:
     geo_p = subparsers.add_parser("geocode", help="Geocode address using free Nominatim")
     geo_p.add_argument("query", type=str, help="Search query")
 
+    # Test Presets
+    test_p = subparsers.add_parser("test-presets", help="Run all 7 core prototype archetypes and corridor presets in batch")
+    test_p.add_argument("--open", action="store_true", help="Automatically open generated testing hub catalog in browser")
+    test_p.add_argument("--offline", action="store_true", default=True, help="Use cached offline fixtures (default: True)")
+    test_p.add_argument("--output-dir", type=str, default=None, help="Directory to save generated maps")
+    test_p.add_argument("--preference", choices=["balanced", "fewer_turns", "shortest"], default="balanced", help="Routing optimization preference")
+
+    # GUI
+    gui_p = subparsers.add_parser("gui", help="Launch interactive Route Launcher GUI Dev Tool")
+    gui_p.add_argument("--port", type=int, default=8050, help="Local HTTP server port (default: 8050)")
+    gui_p.add_argument("--no-browser", action="store_true", help="Do not automatically launch browser")
+
+    # Help
+    help_p = subparsers.add_parser("help", help="Show help information for a command")
+    help_p.add_argument("subcommand", nargs="?", choices=["fetch", "route", "test-presets", "gui", "cache-tiles", "coverage", "export-geojson", "benchmark", "geocode"], help="Command to show detailed help for")
+
+    subparsers_map = {
+        "fetch": fetch_p,
+        "route": route_p,
+        "test-presets": test_p,
+        "gui": gui_p,
+        "cache-tiles": cache_p,
+        "coverage": cov_p,
+        "export-geojson": export_p,
+        "benchmark": bench_p,
+        "geocode": geo_p,
+    }
+
+    if len(sys.argv) == 1:
+        parser.print_help()
+        return
+
     args = parser.parse_args()
 
-    if args.command == "fetch":
+    if args.command == "help":
+        if getattr(args, "subcommand", None) and args.subcommand in subparsers_map:
+            subparsers_map[args.subcommand].print_help()
+        else:
+            parser.print_help()
+    elif args.command == "fetch":
         run_fetch(args)
     elif args.command == "route":
         run_route(args)
+    elif args.command == "test-presets":
+        run_test_presets(args)
+    elif args.command == "gui":
+        run_gui(args)
     elif args.command == "cache-tiles":
         run_cache_tiles(args)
     elif args.command == "coverage":
@@ -368,8 +443,7 @@ def main() -> None:
     elif args.command == "geocode":
         run_geocode(args)
     else:
-        # Default: run route
-        run_route(args)
+        parser.print_help()
 
 
 if __name__ == "__main__":
