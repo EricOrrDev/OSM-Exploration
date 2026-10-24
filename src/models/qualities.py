@@ -8,7 +8,7 @@ from dataclasses import asdict
 from enum import Enum
 import math
 from typing import Any, Dict, List, Optional, Tuple
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, computed_field
 
 
 class StepAction(str, Enum):
@@ -34,6 +34,16 @@ class KerbQualities(BaseModel):
     tactile_description: Optional[str] = None  # "tactile truncated domes", "tactile paving"
     cross_target: Optional[str] = None  # e.g. "SW Innovation Way", "SW Century Drive"
 
+    @computed_field
+    @property
+    def tactile_paving(self) -> bool:
+        return self.has_tactile_paving
+
+    @computed_field
+    @property
+    def ramp_present(self) -> bool:
+        return self.is_step_free
+
 
 class CrossingQualities(BaseModel):
     """Intersection and roadway qualities of a street crossing."""
@@ -51,6 +61,16 @@ class CrossingQualities(BaseModel):
     turning_vehicle_warning: bool = False
     semantic_crossing_type: Optional[str] = None  # "public_street", "commercial_driveway", "private_driveway"
 
+    @computed_field
+    @property
+    def crossing_type(self) -> Optional[str]:
+        return self.markings or self.semantic_crossing_type
+
+    @computed_field
+    @property
+    def lanes_count(self) -> Optional[int]:
+        return self.lanes_crossed
+
 
 class SignalQualities(BaseModel):
     """Electronic and auditory traffic signal infrastructure."""
@@ -60,6 +80,16 @@ class SignalQualities(BaseModel):
     has_audible_signals: bool = False  # Accessible Pedestrian Signal (APS locator tone)
     has_vibrotactile: bool = False
 
+    @computed_field
+    @property
+    def signalized(self) -> bool:
+        return self.has_signals
+
+    @computed_field
+    @property
+    def has_aps(self) -> bool:
+        return self.has_audible_signals
+
 
 class ButtonQualities(BaseModel):
     """Pedestrian push-button activation infrastructure."""
@@ -68,6 +98,16 @@ class ButtonQualities(BaseModel):
     has_button: bool = False
     relative_direction: Optional[str] = None  # E.g., "at 2 o'clock, 0.8 meters"
     instruction_text: Optional[str] = None
+
+    @computed_field
+    @property
+    def present(self) -> bool:
+        return self.has_button
+
+    @computed_field
+    @property
+    def location_desc(self) -> Optional[str]:
+        return self.relative_direction
 
 
 class PathQualities(BaseModel):
@@ -83,6 +123,16 @@ class PathQualities(BaseModel):
     is_bridge: bool = False
     is_traffic_island: bool = False
 
+    @computed_field
+    @property
+    def street_name(self) -> Optional[str]:
+        return self.name
+
+    @computed_field
+    @property
+    def tactile_paving(self) -> bool:
+        return self.has_tactile_guideway
+
 
 class TurnQualities(BaseModel):
     """Angular, quantized, and clock-face orientation attributes."""
@@ -96,6 +146,24 @@ class TurnQualities(BaseModel):
     clock_position: Optional[str] = None  # E.g. "10 o'clock", "1:30"
     curve_arc_deg: Optional[float] = None
 
+    @computed_field
+    @property
+    def relative_direction(self) -> Optional[str]:
+        """Alias for turn_direction (e.g. 'left', 'right')."""
+        return self.turn_direction
+
+    @computed_field
+    @property
+    def bearing_change_deg(self) -> float:
+        """Alias for turn_angle_deg (quantized angle in degrees)."""
+        return float(self.turn_angle_deg)
+
+    @computed_field
+    @property
+    def clock_bearing(self) -> Optional[str]:
+        """Alias for clock_position (e.g. '10 o'clock')."""
+        return self.clock_position
+
 
 class HazardQualities(BaseModel):
     """Accessibility risk, safety score, and spatial conflation consistency."""
@@ -105,6 +173,16 @@ class HazardQualities(BaseModel):
     safety_score: float = 1.0   # 0.0 to 1.0
     has_data_anomaly: bool = False
     anomaly_cue: Optional[str] = None
+
+    @computed_field
+    @property
+    def risk_score(self) -> float:
+        return self.hazard_metric
+
+    @computed_field
+    @property
+    def data_anomaly(self) -> bool:
+        return self.has_data_anomaly
 
 
 class NavigationStepQualities(BaseModel):
